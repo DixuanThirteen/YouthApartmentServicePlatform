@@ -18,9 +18,21 @@ public class User {
     @NotBlank(message = "用户名不能为空")
     private String username;
 
+    @Column(nullable=false, unique=true)
+    @NotBlank(message = "昵称不能为空")
+    private String nickname;
+
+    @Column(nullable=false)
+    @NotBlank(message = "真实姓名不能为空")
+    private String realname;
+
     @Column(nullable=false)
     @NotBlank(message = "密码不能为空")
     private String password;
+
+    @Column(nullable=false, unique=true, length=18)
+    @Pattern(regexp="^\\d{17}[\\dXx]$", message="身份证号码格式不正确")
+    private String idnumber;
 
     @Column(nullable=false, length=11)
     @Pattern(regexp="^\\d{11}$", message="手机号必须为11位数字")
@@ -37,6 +49,11 @@ public class User {
 
     private LocalDate bornDate;
 
-    @Pattern(regexp="男|女|其他", message="性别只能是男、女或其他")
+    @Pattern(regexp= "[男女]", message="性别只能是男、女")
     private String sex; // "男"、"女"、"其他"
+
+    @Column(nullable=false)
+    private String avatar; // 头像URL
+
+    private String introduction;
 }

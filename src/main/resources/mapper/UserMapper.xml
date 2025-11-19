@@ -16,7 +16,8 @@
     <!-- 更新除密码外的基本信息 -->
     <update id="updateUser" parameterType="com.yasp.entity.User">
         UPDATE users
-        SET phone = #{phone},
+        SET nickname = #{nickname},
+            phone = #{phone},
             email = #{email},
             age = #{age},
             born_date = #{bornDate},
@@ -34,4 +35,22 @@
     <delete id="deleteByUsername" parameterType="string">
         DELETE FROM users WHERE username = #{username}
     </delete>
+
+    <update id="updateAvatar" parameterType="map">
+        UPDATE users
+        SET avatar = #{avatar}
+        WHERE username = #{username}
+    </update>
+
+    <update id="updateNickname" parameterType="map">
+        UPDATE users
+        SET nickname = #{nickname}
+        WHERE username = #{username}
+    </update>
+
+    <update id="updateIntroduction" parameterType="map">
+        UPDATE users
+        SET introduction = #{introduction}
+        WHERE username = #{username}
+    </update>
 </mapper>

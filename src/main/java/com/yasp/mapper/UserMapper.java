@@ -22,4 +22,10 @@ public interface UserMapper {
     User selectByPhone(@Pattern(regexp="^\\d{11}$", message="手机号必须为11位数字") String phone);
 
     User selectByEmail(@NotBlank(message = "邮箱不能为空") @Email(message = "邮箱格式不正确") String email);
+
+    int updateAvatar(@Param("username") String username, @Param("avatar") String avatar);
+
+    int updateIntroduction(@Param("username") String username, @Param("introduction") String introduction);
+
+    int updateNickname(@Param("username") String username, @Param("nickname") String nickname);
 }

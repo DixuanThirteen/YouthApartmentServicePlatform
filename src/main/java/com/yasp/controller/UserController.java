@@ -41,4 +41,25 @@ public class UserController {
     public boolean deleteByUsername(@PathVariable String username) {
         return userService.deleteByUsername(username);
     }
+
+    @PutMapping("/update-avatar")
+    // 9. 更新头像
+    public boolean updateAvatar(@RequestParam String username,
+                                @RequestParam String avatar) {
+        return userService.updateAvatar(username, avatar);
+    }
+
+    @PutMapping("/update-introduction")
+    // 10. 更新个人简介
+    public boolean updateIntroduction(@RequestParam String username,
+                                      @RequestParam String introduction) {
+        return userService.updateIntroduction(username, introduction);
+    }
+
+    @PutMapping("/update-nickname")
+    // 11. 更新昵称
+    public boolean updateNickname(@RequestParam String username,
+                                  @RequestParam String nickname) {
+        return userService.updateNickname(username, nickname);
+        }
 }

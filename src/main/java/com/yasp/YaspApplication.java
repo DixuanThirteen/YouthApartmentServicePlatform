@@ -1,4 +1,4 @@
-package com.yasp.begin;
+package com.yasp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
