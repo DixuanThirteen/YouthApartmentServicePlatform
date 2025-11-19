@@ -19,9 +19,6 @@
         SET nickname = #{nickname},
             phone = #{phone},
             email = #{email},
-            age = #{age},
-            born_date = #{bornDate},
-            sex = #{sex}
         WHERE username = #{username}
     </update>
 

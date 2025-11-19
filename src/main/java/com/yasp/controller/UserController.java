@@ -1,9 +1,12 @@
 package com.yasp.controller;
 
+import com.yasp.dto.LoginRequest;
 import com.yasp.entity.User;
 import com.yasp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController // 1. 标记这是一个Rest接口控制器，返回JSON（不渲染页面）
 @RequestMapping("/api/user") // 2. 统一设定本类下所有接口的URL前缀
@@ -21,6 +24,11 @@ public class UserController {
     // 5. HTTP POST, 用于注册。@RequestBody自动把json反序列化为User对象
     public boolean register(@RequestBody User user) {
         return userService.register(user);
+    }
+
+    public Map<String, Object> login(@RequestBody LoginRequest req) {
+        User user = userService.findByUsername(req.getUsername());
+        return Map.of();
     }
 
     @PutMapping("/update")
