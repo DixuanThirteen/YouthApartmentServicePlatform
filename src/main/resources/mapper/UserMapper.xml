@@ -8,17 +8,30 @@
         SELECT * FROM users WHERE username = #{username}
     </select>
 
+    <select id="selectByPhone" resultType="com.yasp.entity.User">
+        SELECT * FROM users WHERE phone = #{phone}
+    </select>
+
+    <select id="selectByEmail" resultType="com.yasp.entity.User">
+        SELECT * FROM users WHERE email = #{email}
+    </select>
+
     <insert id="insertUser" parameterType="com.yasp.entity.User">
-        INSERT INTO users(username, password, phone, email, age, born_date, sex)
-        VALUES (#{username}, #{password}, #{phone}, #{email}, #{age}, #{bornDate}, #{sex})
+        INSERT INTO users (username, nickname, password, realname, idnumber, gender, born_date, phone, email, avatar, register_date, create_time, update_time)
+        VALUES (#{username}, #{nickname}, #{password}, #{realname}, #{idnumber}, #{gender}, #{bornDate}, #{phone}, #{email}, #{avatar}, #{registerDate}, #{createTime}, #{updateTime})
     </insert>
 
-    <!-- 更新除密码外的基本信息 -->
+    <delete id="deleteByUsername" parameterType="string">
+        DELETE FROM users WHERE username = #{username}
+    </delete>
+
+    <!-- 更新头像、昵称、个人介绍、地区 -->
     <update id="updateUser" parameterType="com.yasp.entity.User">
         UPDATE users
         SET nickname = #{nickname},
-            phone = #{phone},
-            email = #{email},
+            avatar = #{avatar},
+            introduction = #{introduction},
+            region = #{region}
         WHERE username = #{username}
     </update>
 
@@ -29,25 +42,21 @@
         WHERE username = #{username}
     </update>
 
-    <delete id="deleteByUsername" parameterType="string">
-        DELETE FROM users WHERE username = #{username}
-    </delete>
-
-    <update id="updateAvatar" parameterType="map">
+    <update id="updatePhone" parameterType="string">
         UPDATE users
-        SET avatar = #{avatar}
+        SET phone = #{phone}
         WHERE username = #{username}
     </update>
 
-    <update id="updateNickname" parameterType="map">
+    <update id="updateEmail" parameterType="string">
         UPDATE users
-        SET nickname = #{nickname}
+        SET email = #{email}
         WHERE username = #{username}
     </update>
 
-    <update id="updateIntroduction" parameterType="map">
+    <update id="updateDegree" parameterType="string">
         UPDATE users
-        SET introduction = #{introduction}
+        SET degree = #{degree}
         WHERE username = #{username}
     </update>
 </mapper>
