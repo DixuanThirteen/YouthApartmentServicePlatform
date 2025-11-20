@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RestController // 1. 标记这是一个Rest接口控制器，返回JSON（不渲染页面）
 @RequestMapping("/api/user") // 2. 统一设定本类下所有接口的URL前缀
@@ -28,6 +29,11 @@ public class UserController {
 
     public Map<String, Object> login(@RequestBody LoginRequest req) {
         User user = userService.findByUsername(req.getUsername());
+
+        if (user == null || !Objects.equals(user.getPassword(), getByUsername(req.getUsername()).getPassword())) {
+            return Map.of("success", false, "message", "用户名或密码错误");
+        }
+
         return Map.of();
     }
 
