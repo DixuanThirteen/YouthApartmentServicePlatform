@@ -1,7 +1,11 @@
 package com.yasp.controller;
 
+import com.yasp.dto.LoginRequest;
+import com.yasp.dto.LoginResponse;
 import com.yasp.dto.UserRegisterRequest;
 import com.yasp.dto.UserRegisterResponse;
+import com.yasp.entity.Admin;
+import com.yasp.service.AdminService;
 import com.yasp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +24,16 @@ public class UserController {
         UserRegisterResponse resp = userService.register(request);
         return ResponseEntity.ok(resp);
     }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
+        String username = request.getUsername();
+        String password = request.getPassword();
+        Boolean RememberMe = request.getRememberMe();
+        LoginResponse response = userService.login(username, password, RememberMe);
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
 }

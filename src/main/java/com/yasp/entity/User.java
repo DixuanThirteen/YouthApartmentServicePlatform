@@ -18,6 +18,7 @@ public class User {
     private String nickName;
 
     private String realName;
+    private String password;
 
     private String hashPassword;
 
@@ -42,6 +43,9 @@ public class User {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+
+
 
     public enum Gender {
         male, female
