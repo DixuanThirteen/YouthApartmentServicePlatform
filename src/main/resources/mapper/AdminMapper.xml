@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.AdminMapper">
+
+    <resultMap id="AdminResultMap" type="com.yasp.entity.Admin">
+        <id     property="id"        column="id"/>
+
+        <result property="username"  column="username"/>
+        <result property="realName"  column="realname"/>
+        <result property="password"  column="password_hash"/>
+
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 按用户名查询管理员 -->
+    <select id="selectByUsername"
+            parameterType="string"
+            resultMap="AdminResultMap">
+        SELECT
+            id,
+            username,
+            realname,
+            password_hash,
+            created_at,
+            updated_at
+        FROM admin
+        WHERE username = #{username}
+    </select>
+
+</mapper>
