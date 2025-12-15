@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.ProviderMapper">
+    <resultMap id="ProviderResultMap" type="com.yasp.entity.Provider">
+        <id     property="id"            column="id"/>
+
+        <result property="name"          column="name"/>
+        <result property="type"          column="type"/>
+
+        <result property="contactPerson" column="contact_person"/>
+        <result property="contactPhone"  column="contact_phone"/>
+        <result property="contactEmail"  column="contact_email"/>
+
+        <result property="address"       column="address"/>
+        <result property="licenseNumber" column="license_number"/>
+        <result property="description"   column="description"/>
+
+        <result property="status"        column="status"/>
+
+        <result property="createdAt"     column="created_at"/>
+        <result property="updatedAt"     column="updated_at"/>
+    </resultMap>
+
+    <select id="SelectProviderByName" resultMap="ProviderResultMap">
+        SELECT
+            id,name,type,contact_person,contact_phone,contact_email,address,license_number,description,status,created_at,updated_at
+        FROM
+            providers
+        WHERE
+            name = #{name}
+    </select>
+    
+    <select id="SelectProviderByLicense" resultMap="ProviderResultMap">
+        SELECT
+            id,name,type,contact_person,contact_phone,contact_email,address,license_number,description,status,created_at,updated_at
+        FROM
+            providers
+        WHERE
+            license_number = #{licenseNumber}
+    </select>
+    
+    <insert id="insertProvider" parameterType="com.yasp.entity.Provider"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO providers(
+            name,type,contact_person,contact_phone,contact_email,address,license_number,description,status
+        )VALUES (
+            #{name},#{type},#{contactPerson},#{contactPhone},#{contactEmail},#{address},#{licenseNumber},#{description},#{status}
+                )
+    </insert>
+</mapper>

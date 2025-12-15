@@ -1,62 +1,136 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.yasp.mapper.UserMapper">
-    <select id="selectByUsername" resultType="com.yasp.entity.User">
-        SELECT * FROM users WHERE username = #{username}
+
+    <!-- 用户表的通用映射 -->
+    <resultMap id="UserResultMap" type="com.yasp.entity.User">
+        <id     property="id"           column="id"/>
+
+        <result property="username"     column="username"/>
+        <result property="nickName"     column="nickname"/>
+        <result property="realName"     column="realname"/>
+        <result property="hashPassword" column="hash_password"/>
+
+        <result property="idNumber"     column="idnumber"/>
+        <result property="phone"        column="phone"/>
+        <result property="email"        column="email"/>
+
+        <result property="bornDate"     column="born_date"/>
+        <result property="gender"       column="gender"/>
+
+        <result property="avatar"       column="avatar"/>
+        <result property="introduction" column="introduction"/>
+        <result property="region"       column="region"/>
+
+        <result property="degree"       column="degree"/>
+
+        <result property="createdAt"    column="created_at"/>
+        <result property="updatedAt"    column="updated_at"/>
+    </resultMap>
+
+    <!-- 对应接口：User selectByUsername(String username); -->
+    <select id="selectByUsername" resultMap="UserResultMap">
+        SELECT
+            id,
+            username,
+            nickname,
+            realname,
+            hash_password,
+            idnumber,
+            phone,
+            email,
+            born_date,
+            gender,
+            avatar,
+            introduction,
+            region,
+            degree,
+            created_at,
+            updated_at
+        FROM users
+        WHERE username = #{username}
     </select>
 
-    <select id="selectByPhone" resultType="com.yasp.entity.User">
-        SELECT * FROM users WHERE phone = #{phone}
+    <!-- 对应接口：User selectByPhone(String phone); -->
+    <select id="selectByPhone" resultMap="UserResultMap">
+        SELECT
+            id,
+            username,
+            nickname,
+            realname,
+            hash_password,
+            idnumber,
+            phone,
+            email,
+            born_date,
+            gender,
+            avatar,
+            introduction,
+            region,
+            degree,
+            created_at,
+            updated_at
+        FROM users
+        WHERE phone = #{phone}
     </select>
 
-    <select id="selectByEmail" resultType="com.yasp.entity.User">
-        SELECT * FROM users WHERE email = #{email}
+    <!-- 对应接口：User selectByEmail(String email); -->
+    <select id="selectByEmail" resultMap="UserResultMap">
+        SELECT
+            id,
+            username,
+            nickname,
+            realname,
+            hash_password,
+            idnumber,
+            phone,
+            email,
+            born_date,
+            gender,
+            avatar,
+            introduction,
+            region,
+            degree,
+            created_at,
+            updated_at
+        FROM users
+        WHERE email = #{email}
     </select>
 
-    <insert id="insertUser" parameterType="com.yasp.entity.User">
-        INSERT INTO users (username, nickname, password, realname, idnumber, gender, born_date, phone, email, avatar, register_date, create_time, update_time)
-        VALUES (#{username}, #{nickname}, #{password}, #{realname}, #{idnumber}, #{gender}, #{bornDate}, #{phone}, #{email}, #{avatar}, #{registerDate}, #{createTime}, #{updateTime})
+    <!-- 对应接口：int insertUser(User user); -->
+    <insert id="insertUser" parameterType="com.yasp.entity.User"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (
+            username,
+            nickname,
+            realname,
+            hash_password,
+            idnumber,
+            phone,
+            email,
+            born_date,
+            gender,
+            avatar,
+            introduction,
+            region,
+            degree
+        ) VALUES (
+                     #{username},
+                     #{nickName},
+                     #{realName},
+                     #{hashPassword},
+                     #{idNumber},
+                     #{phone},
+                     #{email},
+                     #{bornDate},
+                     #{gender},
+                     #{avatar},
+                     #{introduction},
+                     #{region},
+                     #{degree}
+                 )
     </insert>
-
-    <delete id="deleteByUsername" parameterType="string">
-        DELETE FROM users WHERE username = #{username}
-    </delete>
-
-    <!-- 更新头像、昵称、个人介绍、地区 -->
-    <update id="updateUser" parameterType="com.yasp.entity.User">
-        UPDATE users
-        SET nickname = #{nickname},
-            avatar = #{avatar},
-            introduction = #{introduction},
-            region = #{region}
-        WHERE username = #{username}
-    </update>
-
-    <!-- 单独更新密码 -->
-    <update id="updatePassword" parameterType="com.yasp.entity.User">
-        UPDATE users
-        SET password = #{password}
-        WHERE username = #{username}
-    </update>
-
-    <update id="updatePhone" parameterType="string">
-        UPDATE users
-        SET phone = #{phone}
-        WHERE username = #{username}
-    </update>
-
-    <update id="updateEmail" parameterType="string">
-        UPDATE users
-        SET email = #{email}
-        WHERE username = #{username}
-    </update>
-
-    <update id="updateDegree" parameterType="string">
-        UPDATE users
-        SET degree = #{degree}
-        WHERE username = #{username}
-    </update>
 </mapper>
