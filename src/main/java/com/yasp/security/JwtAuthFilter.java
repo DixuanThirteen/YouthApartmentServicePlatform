@@ -1,51 +1,74 @@
 package com.yasp.security;
 
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.*;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-public class JwtAuthFilter implements Filter {
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private static final Set<String> PUBLIC_PATHS = Set.of(
+            "/api/admin/login",
+            "/api/provider/login",
+            "/api/user/login",
+            "/api/provider/register",
+            "/api/user/register"
+    );
 
     @Override
-    public void doFilter(
-            ServletRequest request,
-            ServletResponse response,
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return PUBLIC_PATHS.contains(request.getRequestURI());
+    }
+
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest req,
+            HttpServletResponse resp,
             FilterChain chain
     ) throws IOException, ServletException {
 
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
-
-        String path = req.getRequestURI();
-
-        // 登录、注册等接口允许匿名访问
-        if (path.startsWith("/api/auth/login") ||
-                path.startsWith("/api/user/register")) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // 从 Authorization 头中获取 token
         String authHeader = req.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // 你目前是“缺 token 就 401”
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().write("Missing or invalid Authorization header");
             return;
         }
 
-        String token = authHeader.substring(7); // 去掉 "Bearer "
+        String token = authHeader.substring(7);
 
         try {
             Claims claims = JwtUtil.parseToken(token);
-            // 这里你可以把 userId/username 放到 request attribute 或 ThreadLocal
-            req.setAttribute("userId", Long.valueOf(claims.getSubject()));
-            req.setAttribute("username", claims.get("username"));
-            req.setAttribute("role", claims.get("role"));
 
-            chain.doFilter(request, response);
+            Long userId = Long.valueOf(claims.getSubject());
+            String username = (String) claims.get("username");
+            String role = (String) claims.get("role");
+
+            // 1) 仍然可选：写到 request attribute（给你自己用）
+            req.setAttribute("userId", userId);
+            req.setAttribute("username", username);
+            req.setAttribute("role", role);
+
+            // 2) 关键：写入 Spring Security 上下文（Principal 才能取到）
+            // 写入 SecurityContext，Controller 才能用 Principal
+            var authorities = role == null
+                    ? List.<SimpleGrantedAuthority>of()
+                    : List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
+            var authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            chain.doFilter(req, resp);
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().write("Invalid or expired token");

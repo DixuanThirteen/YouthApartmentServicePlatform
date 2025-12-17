@@ -8,8 +8,7 @@ contact_email   VARCHAR(100),
 address         VARCHAR(255),              -- 办公地址 / 注册地址（简单留一个字段）
 license_number  VARCHAR(100),              -- 营业执照/备案号（可选）
 description     TEXT,                      -- 简短介绍
-status          TINYINT NOT NULL DEFAULT 1,  -- 1=active,0=disabled,pending等可后续扩展
-register_data   DATE NOT NULL, 
+status          TINYINT NOT NULL DEFAULT 1,  -- 1=active,2=disabled,0=pending等可后续扩展
 created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )

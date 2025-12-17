@@ -32,15 +32,17 @@ public class AdminService {
             return Response;
         }
 
-        if(passwordEncoder.matches(password, admin.getPassword())){
+        if(!passwordEncoder.matches(password, admin.getPassword())){
             Response.setCode(400);
             Response.setMessage("密码错误");
         }
+
+        Response.setRole(LoginResponse.Role.ADMIN);
+
         long EXP_MS = 2 * 60 * 60 * 1000L;
-        String token = JwtUtil.generateToken(admin.getId(),username,"ADMIN", EXP_MS);
+        String token = JwtUtil.generateToken(admin.getId(),username,Response.getRole(), EXP_MS);
 
         Response.setCode(200);
-        Response.setRole(LoginResponse.Role.ADMIN);
         Response.setUsername(admin.getUsername());
         Response.setToken(token);
         Response.setMessage("登录成功");

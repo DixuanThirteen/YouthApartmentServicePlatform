@@ -50,4 +50,13 @@
             #{name},#{type},#{contactPerson},#{contactPhone},#{contactEmail},#{address},#{licenseNumber},#{description},#{status}
                 )
     </insert>
+
+    <select id="selectProviderById" resultMap="ProviderResultMap">
+        SELECT
+            id,name,type,contact_person,contact_phone,contact_email,address,license_number,description,status,created_at,updated_at
+        FROM
+            providers
+        WHERE
+            id = #{id}
+    </select>
 </mapper>

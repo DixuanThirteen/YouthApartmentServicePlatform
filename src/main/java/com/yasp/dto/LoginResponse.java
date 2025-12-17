@@ -14,7 +14,7 @@ public class LoginResponse {
     private String refreshToken;
 
     public enum Role{
-        ADMIN, USER, PROVIDER
+        ADMIN, USER, PROVIDER_Admin, PROVIDER_Staff
     }
 
 }

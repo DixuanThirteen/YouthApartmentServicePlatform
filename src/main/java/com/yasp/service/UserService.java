@@ -85,15 +85,16 @@ public class UserService {
             Response.setMessage("用户名不存在");
             return Response;
         }
-        if(passwordEncoder.matches(password, user.getPassword())){
+        if(!passwordEncoder.matches(password, user.getPassword())){
             Response.setCode(400);
             Response.setMessage("密码错误");
         }
+        Response.setRole(LoginResponse.Role.USER);
+
         long EXP_MS = 2 * 60 * 60 * 1000L;
-        String token = JwtUtil.generateToken(user.getId(),username,"USER", EXP_MS);
+        String token = JwtUtil.generateToken(user.getId(),username,Response.getRole(), EXP_MS);
 
         Response.setCode(200);
-        Response.setRole(LoginResponse.Role.USER);
         Response.setUsername(user.getUsername());
         Response.setToken(token);
         Response.setMessage("登录成功");

@@ -1,5 +1,6 @@
 package com.yasp.security;
 
+import com.yasp.dto.LoginResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -20,7 +21,7 @@ public class JwtUtil {
     }
 
     // 根据自定义过期时间生成 token（毫秒）
-    public static String generateToken(Long userId, String username, String role, long expMillis) {
+    public static String generateToken(Long userId, String username, LoginResponse.Role role, long expMillis) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expMillis);
 

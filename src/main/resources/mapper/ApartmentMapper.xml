@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.ApartmentMapper">
+
+    <resultMap id="ApartmentResultMap" type="com.yasp.entity.Apartment">
+        <id     column="id"               property="id"/>
+
+        <result column="provider_id"      property="providerId"/>
+        <result column="name"             property="name"/>
+        <result column="type"             property="type"/>
+
+        <result column="province_code"    property="provinceCode"/>
+        <result column="city_code"        property="cityCode"/>
+        <result column="district_code"    property="districtCode"/>
+        <result column="address"          property="address"/>
+
+        <result column="latitude"         property="latitude"/>
+        <result column="longitude"        property="longitude"/>
+
+        <result column="cover_url"        property="coverUrl"/>
+        <result column="description"      property="description"/>
+
+        <result column="rent_min_cent"    property="rentMinCent"/>
+        <result column="rent_max_cent"    property="rentMaxCent"/>
+        <result column="deposit_cent"     property="depositCent"/>
+
+        <result column="pay_cycle"        property="payCycle"/>
+        <result column="min_lease_months" property="minLeaseMonths"/>
+        <result column="max_lease_months" property="maxLeaseMonths"/>
+
+        <result column="status"           property="status"/>
+        <result column="publish_status"   property="publishStatus"/>
+
+        <result column="created_at"       property="createdAt"/>
+        <result column="updated_at"       property="updatedAt"/>
+    </resultMap>
+
+    <sql id="ApartmentColumns">
+        id, provider_id, name, type,
+        province_code, city_code, district_code, address,
+        latitude, longitude,
+        cover_url, description,
+        rent_min_cent, rent_max_cent, deposit_cent,
+        pay_cycle, min_lease_months, max_lease_months,
+        status, publish_status,
+        created_at, updated_at
+    </sql>
+
+    <select id="selectById" resultMap="ApartmentResultMap">
+        SELECT <include refid="ApartmentColumns"/>
+        FROM apartments
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByProviderId" resultMap="ApartmentResultMap">
+        SELECT <include refid="ApartmentColumns"/>
+        FROM apartments
+        WHERE provider_id = #{providerId}
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert" parameterType="com.yasp.entity.Apartment"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO apartments (
+            provider_id, name, type,
+            province_code, city_code, district_code, address,
+            latitude, longitude,
+            cover_url, description,
+            rent_min_cent, rent_max_cent, deposit_cent,
+            pay_cycle, min_lease_months, max_lease_months,
+            publish_status
+        ) VALUES (
+                     #{providerId}, #{name}, #{type},
+                     #{provinceCode}, #{cityCode}, #{districtCode}, #{address},
+                     #{latitude}, #{longitude},
+                     #{coverUrl}, #{description},
+                     #{rentMinCent}, #{rentMaxCent}, #{depositCent},
+                     #{payCycle}, #{minLeaseMonths}, #{maxLeaseMonths},
+                     #{publishStatus}
+                 )
+    </insert>
+
+    <update id="updateById" parameterType="com.yasp.entity.Apartment">
+        UPDATE apartments
+        SET
+            provider_id = #{providerId},
+            name = #{name},
+            type = #{type},
+            province_code = #{provinceCode},
+            city_code = #{cityCode},
+            district_code = #{districtCode},
+            address = #{address},
+            latitude = #{latitude},
+            longitude = #{longitude},
+            cover_url = #{coverUrl},
+            description = #{description},
+            rent_min_cent = #{rentMinCent},
+            rent_max_cent = #{rentMaxCent},
+            deposit_cent = #{depositCent},
+            pay_cycle = #{payCycle},
+            min_lease_months = #{minLeaseMonths},
+            max_lease_months = #{maxLeaseMonths},
+            status = #{status},
+            publish_status = #{publishStatus}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM apartments WHERE id = #{id}
+    </delete>
+
+    <select id="selectAll" resultMap="ApartmentResultMap">
+        SELECT *
+        FROM apartments
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <select id="searchApartments"
+            parameterType="com.yasp.dto.ApartmentSearchRequest"
+            resultType="com.yasp.entity.Apartment">
+        SELECT
+        id, provider_id, name, type,
+        province_code, city_code, district_code, address,
+        latitude, longitude,
+        cover_url, description,
+        rent_min_cent, rent_max_cent, deposit_cent,
+        pay_cycle, min_lease_months, max_lease_months,
+        status, publish_status,
+        created_at, updated_at
+        FROM apartments
+        <where>
+
+            <!-- 精确匹配 -->
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+
+            <if test="providerId != null">
+                AND provider_id = #{providerId}
+            </if>
+
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+
+            <if test="publishStatus != null">
+                AND publish_status = #{publishStatus}
+            </if>
+
+            <if test="payCycle != null">
+                AND pay_cycle = #{payCycle}
+            </if>
+
+            <!-- 地区（按你的表是 code 字符串） -->
+            <if test="provinceCode != null and provinceCode != ''">
+                AND province_code = #{provinceCode}
+            </if>
+            <if test="cityCode != null and cityCode != ''">
+                AND city_code = #{cityCode}
+            </if>
+            <if test="districtCode != null and districtCode != ''">
+                AND district_code = #{districtCode}
+            </if>
+
+            <!-- 模糊搜索（name/address/description） -->
+            <if test="keyword != null and keyword != ''">
+                AND (
+                name LIKE CONCAT('%', #{keyword}, '%')
+                OR address LIKE CONCAT('%', #{keyword}, '%')
+                OR description LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+
+            <!-- 也支持只对 name 模糊 -->
+            <if test="nameLike != null and nameLike != ''">
+                AND name LIKE CONCAT('%', #{nameLike}, '%')
+            </if>
+
+            <!-- 数值范围：租金（注意你的表是 rent_min_cent / rent_max_cent） -->
+            <!-- 这里的语义：用户期望 rent_min_cent >= min && rent_max_cent <= max（按你需求可调整） -->
+            <if test="rentMinCentGte != null">
+                AND rent_min_cent &gt;= #{rentMinCentGte}
+            </if>
+            <if test="rentMaxCentLte != null">
+                AND rent_max_cent &lt;= #{rentMaxCentLte}
+            </if>
+
+            <!-- 另一种常见语义：用户预算在[min,max]，要求房源区间与预算有交集 -->
+            <!-- 需要的话打开：
+            <if test="budgetMinCent != null">
+              AND (rent_max_cent IS NULL OR rent_max_cent &gt;= #{budgetMinCent})
+            </if>
+            <if test="budgetMaxCent != null">
+              AND (rent_min_cent IS NULL OR rent_min_cent &lt;= #{budgetMaxCent})
+            </if>
+            -->
+
+            <!-- 押金范围 -->
+            <if test="depositCentGte != null">
+                AND deposit_cent &gt;= #{depositCentGte}
+            </if>
+            <if test="depositCentLte != null">
+                AND deposit_cent &lt;= #{depositCentLte}
+            </if>
+
+            <!-- 租期范围 -->
+            <if test="minLeaseMonthsGte != null">
+                AND min_lease_months &gt;= #{minLeaseMonthsGte}
+            </if>
+            <if test="maxLeaseMonthsLte != null">
+                AND max_lease_months &lt;= #{maxLeaseMonthsLte}
+            </if>
+
+            <!-- 坐标范围（可选：矩形范围） -->
+            <if test="latMin != null">
+                AND latitude &gt;= #{latMin}
+            </if>
+            <if test="latMax != null">
+                AND latitude &lt;= #{latMax}
+            </if>
+            <if test="lngMin != null">
+                AND longitude &gt;= #{lngMin}
+            </if>
+            <if test="lngMax != null">
+                AND longitude &lt;= #{lngMax}
+            </if>
+
+            <!-- 时间范围 -->
+            <if test="createdAtFrom != null">
+                AND created_at &gt;= #{createdAtFrom}
+            </if>
+            <if test="createdAtTo != null">
+                AND created_at &lt;= #{createdAtTo}
+            </if>
+
+            <if test="updatedAtFrom != null">
+                AND updated_at &gt;= #{updatedAtFrom}
+            </if>
+            <if test="updatedAtTo != null">
+                AND updated_at &lt;= #{updatedAtTo}
+            </if>
+
+        </where>
+
+        <!-- 排序（可选） -->
+        <choose>
+            <when test="orderBy != null and orderBy != ''">
+                ORDER BY ${orderBy}
+            </when>
+            <otherwise>
+                ORDER BY updated_at DESC, id DESC
+            </otherwise>
+        </choose>
+
+        <!-- 分页（可选：MySQL） -->
+        <if test="limit != null">
+            LIMIT #{limit}
+            <if test="offset != null">
+                OFFSET #{offset}
+            </if>
+        </if>
+    </select>
+
+</mapper>

@@ -1,5 +1,5 @@
 CREATE TABLE Users(
-id INT PRIMARY KEY AUTO_INCREMENT,
+id BIGINT PRIMARY KEY AUTO_INCREMENT,
 username VARCHAR(30) NOT NULL UNIQUE,   -- 用户名  r
 nickname VARCHAR(30) NOT NULL,          -- 昵称   r
 realname VARCHAR(100) NOT NULL,         -- 姓名   r

@@ -46,4 +46,20 @@
         #{status}
         )
     </insert>
+
+    <select id="selectProviderAccountByUsername" resultMap="ProviderAccountResultMap">
+        SELECT
+            id,
+            provider_id,
+            username,
+            email,
+            phone,
+            password_hash,
+            role,
+            status,
+            created_at,
+            updated_at
+        FROM provideraccounts
+        WHERE username = #{username}
+    </select>
 </mapper>

@@ -13,4 +13,6 @@ public interface ProviderMapper {
     int insertProvider(Provider provider);
 
     int updateProvider(Provider provider);
+
+    Provider selectProviderById(@Param("id") Long id);
 }
