@@ -3,9 +3,11 @@ package com.yasp.controller;
 import com.yasp.dto.*;
 import com.yasp.entity.Apartment;
 import com.yasp.entity.ProviderAccount;
+import com.yasp.entity.RoomType;
 import com.yasp.mapper.ProviderAccountMapper;
 import com.yasp.service.ApartmentService;
 import com.yasp.service.ProviderService;
+import com.yasp.service.RoomTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,6 +26,8 @@ public class ProviderController {
     private ProviderAccountMapper providerAccountMapper;
     @Autowired
     private ApartmentService apartmentService;
+    @Autowired
+    private RoomTypeService roomTypeService;
 
     @PostMapping("/register")
     public ResponseEntity<ProviderRegisterResponse> register(@RequestBody ProviderRegisterRequest request){
@@ -63,6 +67,20 @@ public class ProviderController {
                 .orElse(null);
         Response resp = apartmentService.addApartment(apartment, username, role);
         return  ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/createRoomType")
+    public ResponseEntity<Response> createRoomType(
+            @RequestBody RoomType roomType,
+            Authentication authentication
+    ){
+        String username = authentication.getName();
+        String role = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse(null);
+        Response resp = roomTypeService.createRoomType(roomType, username, role);
+        return ResponseEntity.ok(resp);
     }
 
 }

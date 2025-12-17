@@ -1,8 +1,11 @@
 package com.yasp.dto;
 
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
 public class ApartmentSearchRequest {
     private Long id;
     private Long providerId;

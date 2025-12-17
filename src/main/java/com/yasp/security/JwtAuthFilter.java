@@ -36,7 +36,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletResponse resp,
             FilterChain chain
     ) throws IOException, ServletException {
-
+        //测试用
+//        System.out.println("URI=" + req.getRequestURI() + ", Authorization=" + req.getHeader("Authorization"));
         String authHeader = req.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             // 你目前是“缺 token 就 401”
@@ -69,9 +70,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             chain.doFilter(req, resp);
+            //从这开始注释
         } catch (Exception e) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().write("Invalid or expired token");
         }
+            //以下测试用，先注释上面----^
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            resp.getWriter().write(
+//                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
+//            );
+//        }
     }
 }

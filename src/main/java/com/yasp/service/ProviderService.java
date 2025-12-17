@@ -162,11 +162,18 @@ public class ProviderService {
         }
 
         //企业Id
-        account.setProviderId(provider.getId());
+        account.setProviderId(userAccount.getProviderId());
 
         //密码哈希
-        String encode = passwordEncoder.encode(account.getPassword());
-        account.setPassword(encode);
+        try{
+            String rawPassword = account.getPassword();
+            String encode = passwordEncoder.encode(rawPassword);
+            account.setPassword(encode);
+        }catch (Exception e){
+            resp.setCode(400);
+            resp.setMessage(e.getMessage());
+            return resp;
+        }
 
         providerAccountMapper.insertProviderAccount(account);
         resp.setCode(200);

@@ -140,7 +140,7 @@
 
     <select id="searchApartments"
             parameterType="com.yasp.dto.ApartmentSearchRequest"
-            resultType="com.yasp.entity.Apartment">
+            resultMap="ApartmentResultMap">
         SELECT
         id, provider_id, name, type,
         province_code, city_code, district_code, address,

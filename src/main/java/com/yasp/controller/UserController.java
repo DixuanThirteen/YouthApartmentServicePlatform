@@ -43,8 +43,8 @@ public class UserController {
         return apartmentService.getAllApartments();
     }
 
-    @GetMapping("/searchApartments")
-    public List<Apartment> searchApartments(ApartmentSearchRequest apartment){
+    @PostMapping("/searchApartments")
+    public List<Apartment> searchApartments(@RequestBody ApartmentSearchRequest apartment){
         return apartmentService.searchApartments(apartment);
     }
 
