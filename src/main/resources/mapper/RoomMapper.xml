@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.RoomMapper">
+
+    <resultMap id="RoomResultMap" type="com.yasp.entity.Room">
+        <id column="id" property="id"/>
+
+        <result column="apartment_id" property="apartmentId"/>
+        <result column="room_type_id" property="roomTypeId"/>
+
+        <result column="building_no" property="buildingNo"/>
+        <result column="unit_no" property="unitNo"/>
+        <result column="floor_no" property="floorNo"/>
+        <result column="room_no" property="roomNo"/>
+        <result column="display_name" property="displayName"/>
+
+        <result column="building_no_norm" property="buildingNoNorm"/>
+        <result column="unit_no_norm" property="unitNoNorm"/>
+        <result column="room_no_norm" property="roomNoNorm"/>
+
+        <result column="area_sqm" property="areaSqm"/>
+        <result column="orientation" property="orientation"/>
+
+        <result column="rent_cent" property="rentCent"/>
+        <result column="deposit_cent" property="depositCent"/>
+
+        <result column="status" property="status"/>
+        <result column="rent_status" property="rentStatus"/>
+
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+
+        <result column="room_code" property="roomCode"/>
+    </resultMap>
+
+    <sql id="RoomColumns">
+        id, apartment_id, room_type_id,
+        building_no, unit_no, floor_no, room_no, display_name,
+        building_no_norm, unit_no_norm, room_no_norm,
+        area_sqm, orientation, rent_cent, deposit_cent,
+        status, rent_status,
+        created_at, updated_at,
+        room_code
+    </sql>
+
+    <select id="selectById" resultMap="RoomResultMap">
+        SELECT <include refid="RoomColumns"/>
+        FROM rooms
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByApartmentId" resultMap="RoomResultMap">
+        SELECT <include refid="RoomColumns"/>
+        FROM rooms
+        WHERE apartment_id = #{apartmentId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectByRoomTypeId" resultMap="RoomResultMap">
+        SELECT <include refid="RoomColumns"/>
+        FROM rooms
+        WHERE room_type_id = #{roomTypeId}
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert" parameterType="com.yasp.entity.Room"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rooms (
+            apartment_id, room_type_id,
+            building_no, unit_no, floor_no, room_no, display_name,
+            area_sqm, orientation, rent_cent, deposit_cent,
+            status, rent_status,
+            room_code
+        ) VALUES (
+            #{apartmentId}, #{roomTypeId},
+            #{buildingNo}, #{unitNo}, #{floorNo}, #{roomNo}, #{displayName},
+            #{areaSqm}, #{orientation}, #{rentCent}, #{depositCent},
+            #{status}, #{rentStatus},
+            #{roomCode}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.yasp.entity.Room">
+        UPDATE rooms
+        SET
+            apartment_id = #{apartmentId},
+            room_type_id = #{roomTypeId},
+            building_no = #{buildingNo},
+            unit_no = #{unitNo},
+            floor_no = #{floorNo},
+            room_no = #{roomNo},
+            display_name = #{displayName},
+            area_sqm = #{areaSqm},
+            orientation = #{orientation},
+            rent_cent = #{rentCent},
+            deposit_cent = #{depositCent},
+            status = #{status},
+            rent_status = #{rentStatus},
+            room_code = #{roomCode}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM rooms WHERE id = #{id}
+    </delete>
+
+</mapper>

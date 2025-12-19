@@ -12,7 +12,7 @@
         <result property="username"     column="username"/>
         <result property="nickName"     column="nickname"/>
         <result property="realName"     column="realname"/>
-        <result property="hashPassword" column="hash_password"/>
+        <result property="password"     column="hash_password"/>
 
         <result property="idNumber"     column="idnumber"/>
         <result property="phone"        column="phone"/>

@@ -3,7 +3,6 @@ package com.yasp.service;
 import com.yasp.dto.LoginResponse;
 import com.yasp.dto.UserRegisterRequest;
 import com.yasp.dto.UserRegisterResponse;
-import com.yasp.entity.Admin;
 import com.yasp.entity.User;
 import com.yasp.mapper.UserMapper;
 import com.yasp.security.JwtUtil;
@@ -88,6 +87,7 @@ public class UserService {
         if(!passwordEncoder.matches(password, user.getPassword())){
             Response.setCode(400);
             Response.setMessage("密码错误");
+            return Response;
         }
         Response.setRole(LoginResponse.Role.USER);
 

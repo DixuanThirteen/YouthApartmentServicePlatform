@@ -19,10 +19,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/api/admin/login",
-            "/api/provider/login",
-            "/api/user/login",
-            "/api/provider/register",
-            "/api/user/register"
+            "/provider/login",
+            "/user/login",
+            "/provider/register",
+            "/user/register"
     );
 
     @Override

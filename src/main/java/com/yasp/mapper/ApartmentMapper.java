@@ -23,4 +23,6 @@ public interface ApartmentMapper {
     List<Apartment> selectAll();
 
     List<Apartment> searchApartments(ApartmentSearchRequest req);
+
+    Apartment selectByNameAndProviderId(String name, Long providerId);
 }

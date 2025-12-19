@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.RoomTypeMapper">
+
+    <resultMap id="RoomTypeResultMap" type="com.yasp.entity.RoomType">
+        <id column="id" property="id"/>
+
+        <result column="apartment_id" property="apartmentId"/>
+        <result column="name" property="name"/>
+
+        <result column="bedroom_count" property="bedroomCount"/>
+        <result column="living_count" property="livingCount"/>
+        <result column="bathroom_count" property="bathroomCount"/>
+        <result column="kitchen_count" property="kitchenCount"/>
+
+        <result column="area_sqm" property="areaSqm"/>
+        <result column="bed_count" property="bedCount"/>
+        <result column="capacity" property="capacity"/>
+
+        <result column="rent_cent" property="rentCent"/>
+        <result column="deposit_cent" property="depositCent"/>
+
+        <result column="has_window" property="hasWindow"/>
+        <result column="has_balcony" property="hasBalcony"/>
+        <result column="orientation" property="orientation"/>
+
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="RoomTypeColumns">
+        id, apartment_id, name,
+        bedroom_count, living_count, bathroom_count, kitchen_count,
+        area_sqm, bed_count, capacity,
+        rent_cent, deposit_cent,
+        has_window, has_balcony, orientation,
+        description, status,
+        created_at, updated_at
+    </sql>
+
+    <select id="selectById" resultMap="RoomTypeResultMap">
+        SELECT <include refid="RoomTypeColumns"/>
+        FROM room_types
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectRoomTypeByName" resultMap="RoomTypeResultMap">
+        SELECT <include refid="RoomTypeColumns"/>
+        FROM room_types
+        WHERE name = #{name}
+    </select>
+
+    <select id="selectByApartmentId" resultMap="RoomTypeResultMap">
+        SELECT <include refid="RoomTypeColumns"/>
+        FROM room_types
+        WHERE apartment_id = #{apartmentId}
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert" parameterType="com.yasp.entity.RoomType"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO room_types (
+            apartment_id, name,
+            bedroom_count, living_count, bathroom_count, kitchen_count,
+            area_sqm, bed_count, capacity,
+            rent_cent, deposit_cent,
+            has_window, has_balcony, orientation,
+            description,
+            status
+        ) VALUES (
+            #{apartmentId}, #{name},
+            #{bedroomCount}, #{livingCount}, #{bathroomCount}, #{kitchenCount},
+            #{areaSqm}, #{bedCount}, #{capacity},
+            #{rentCent}, #{depositCent},
+            #{hasWindow}, #{hasBalcony}, #{orientation},
+            #{description},
+            #{status}
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.yasp.entity.RoomType">
+        UPDATE room_types
+        SET
+            apartment_id = #{apartmentId},
+            name = #{name},
+            bedroom_count = #{bedroomCount},
+            living_count = #{livingCount},
+            bathroom_count = #{bathroomCount},
+            kitchen_count = #{kitchenCount},
+            area_sqm = #{areaSqm},
+            bed_count = #{bedCount},
+            capacity = #{capacity},
+            rent_cent = #{rentCent},
+            deposit_cent = #{depositCent},
+            has_window = #{hasWindow},
+            has_balcony = #{hasBalcony},
+            orientation = #{orientation},
+            description = #{description},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM room_types WHERE id = #{id}
+    </delete>
+
+</mapper>

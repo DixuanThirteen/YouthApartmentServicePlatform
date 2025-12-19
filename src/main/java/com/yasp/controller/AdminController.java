@@ -23,6 +23,9 @@ public class AdminController {
         String password = request.getPassword();
         Boolean RememberMe = request.getRememberMe();
         LoginResponse response = adminService.login(username, password, RememberMe);
+        if(response.getCode() == 400){
+            return ResponseEntity.badRequest().body(response);
+        }
         return ResponseEntity.ok(response);
     }
 }

@@ -30,10 +30,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/admin/login",
-                                "/api/provider/login",
-                                "/api/user/login",
-                                "/api/provider/register",
-                                "/api/user/register"
+                                "/provider/login",
+                                "/user/login",
+                                "/provider/register",
+                                "/user/register"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

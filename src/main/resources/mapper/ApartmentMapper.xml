@@ -85,26 +85,27 @@
 
     <update id="updateById" parameterType="com.yasp.entity.Apartment">
         UPDATE apartments
-        SET
-            provider_id = #{providerId},
-            name = #{name},
-            type = #{type},
-            province_code = #{provinceCode},
-            city_code = #{cityCode},
-            district_code = #{districtCode},
-            address = #{address},
-            latitude = #{latitude},
-            longitude = #{longitude},
-            cover_url = #{coverUrl},
-            description = #{description},
-            rent_min_cent = #{rentMinCent},
-            rent_max_cent = #{rentMaxCent},
-            deposit_cent = #{depositCent},
-            pay_cycle = #{payCycle},
-            min_lease_months = #{minLeaseMonths},
-            max_lease_months = #{maxLeaseMonths},
-            status = #{status},
-            publish_status = #{publishStatus}
+        <set>
+            <if test="providerId != null">provider_id = #{providerId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="provinceCode != null">province_code = #{provinceCode},</if>
+            <if test="cityCode != null">city_code = #{cityCode},</if>
+            <if test="districtCode != null">district_code = #{districtCode},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="rentMinCent != null">rent_min_cent = #{rentMinCent},</if>
+            <if test="rentMaxCent != null">rent_max_cent = #{rentMaxCent},</if>
+            <if test="depositCent != null">deposit_cent = #{depositCent},</if>
+            <if test="payCycle != null">pay_cycle = #{payCycle},</if>
+            <if test="minLeaseMonths != null">min_lease_months = #{minLeaseMonths},</if>
+            <if test="maxLeaseMonths != null">max_lease_months = #{maxLeaseMonths},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="publishStatus != null">publish_status = #{publishStatus}</if>
+        </set>
         WHERE id = #{id}
     </update>
 
@@ -115,6 +116,12 @@
     <select id="selectAll" resultMap="ApartmentResultMap">
         SELECT *
         FROM apartments
+    </select>
+
+    <select id="selectByNameAndProviderId" resultMap="ApartmentResultMap">
+        SELECT <include refid="ApartmentColumns"/>
+        FROM apartments
+        WHERE name = #{name} AND provider_id = #{providerId}
     </select>
 
 
