@@ -12,6 +12,7 @@ public class LoginResponse {
     private String message;
     private String token;
     private String refreshToken;
+    private String provider;    //user和admin这一栏为空
 
     public enum Role{
         ADMIN, USER, PROVIDER_Admin, PROVIDER_Staff

@@ -1,11 +1,10 @@
 package com.yasp.controller;
 
 import com.yasp.dto.*;
-import com.yasp.entity.Admin;
 import com.yasp.entity.Apartment;
 import com.yasp.entity.RoomType;
+import com.yasp.entity.User;
 import com.yasp.mapper.RoomTypeMapper;
-import com.yasp.service.AdminService;
 import com.yasp.service.ApartmentService;
 import com.yasp.service.RoomTypeService;
 import com.yasp.service.UserService;
@@ -14,13 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
 @RestController // 1. 标记这是一个Rest接口控制器，返回JSON（不渲染页面）
-@RequestMapping("/user") // 2. 统一设定本类下所有接口的URL前缀
+@RequestMapping("/users") // 2. 统一设定本类下所有接口的URL前缀
 public class UserController {
     @Autowired // 3. 自动注入Service层对象
     private UserService userService;
@@ -33,7 +33,7 @@ public class UserController {
     private RoomTypeService roomTypeService;
 
     //注册
-    @PostMapping("/register")
+    @PostMapping
     // 5. HTTP POST, 用于注册。@RequestBody自动把json反序列化为User对象
     public ResponseEntity<UserRegisterResponse> register(@RequestBody UserRegisterRequest request) {
         UserRegisterResponse resp = userService.register(request);
@@ -55,37 +55,30 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/apartment/all")
-    public ResponseEntity<List<Apartment>> apartmentView(Authentication authentication){
-        List<Apartment> resp = apartmentService.getAllApartments();
-        return ResponseEntity.ok(resp);
-    }
-
-    @GetMapping("/apartment/search")
-    public ResponseEntity<List<Apartment>> searchApartments(@RequestBody ApartmentSearchRequest apartment){
-        List<Apartment> resp = apartmentService.searchApartments(apartment);
-        return ResponseEntity.ok(resp);
-    }
-
-    @GetMapping("/apartment/detail/{id}")
-    public ResponseEntity<Apartment> oneApartment(@PathVariable Long id){
-        Apartment apartment = apartmentService.getApartmentById(id);
-        if(apartment == null){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(apartment);
-    }
-
-    @GetMapping("/apartment/detail/{id}/room-type")
-    public ResponseEntity<Object> roomTypeDetails(@PathVariable Long id){
-        List<RoomType> roomTypes = roomTypeService.getRoomTypeByApartmentId(id);
-        if(roomTypes == null ||  roomTypes.isEmpty()){
+    @GetMapping("/{id}")//查看个人信息
+    public ResponseEntity<Object> userDetail(@PathVariable Long id){
+        User user = userService.userDetail(id);
+        if(user == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Error: Resource with ID " + id + " was not found.");
         }
-        return ResponseEntity.ok(roomTypes);
+        return ResponseEntity.ok(user);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Response> userUpdate(
+            @PathVariable Long id,
+            @RequestBody User user,
+            Authentication authentication){
+        String username = authentication.getName();
+        String role = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse(null);
+        Response resp = userService.userUpdate(id, user, username, role);
+
+        return ResponseEntity.ok(resp);
+    }
 
 
 }

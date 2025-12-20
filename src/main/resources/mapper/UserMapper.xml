@@ -100,6 +100,28 @@
         WHERE email = #{email}
     </select>
 
+    <select id="selectById" resultMap="UserResultMap">
+        SELECT
+            id,
+            username,
+            nickname,
+            realname,
+            hash_password,
+            idnumber,
+            phone,
+            email,
+            born_date,
+            gender,
+            avatar,
+            introduction,
+            region,
+            degree,
+            created_at,
+            updated_at
+        FROM users
+        WHERE id = #{id}
+    </select>
+
     <!-- 对应接口：int insertUser(User user); -->
     <insert id="insertUser" parameterType="com.yasp.entity.User"
             useGeneratedKeys="true" keyProperty="id">
@@ -133,4 +155,23 @@
                      #{degree}
                  )
     </insert>
+
+    <update id="updateUser">
+        UPDATE users
+        <set>
+            <if test="nickName != null">
+                nickname = #{nickName},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar},
+            </if>
+            <if test="introduction != null">
+                introduction = #{introduction},
+            </if>
+            <if test="region != null">
+                region = #{region},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
 </mapper>

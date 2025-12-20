@@ -112,6 +112,7 @@ public class ProviderService {
         response.setUsername(request.getUsername());
         response.setCode(200);
         response.setMessage("登录成功");
+        response.setProvider(providerMapper.selectProviderById(providerAccount.getProviderId()).getName());
 
         long EXP_MS = 2 * 60 * 60 * 1000L;
         String token = JwtUtil.generateToken(providerAccount.getId(),providerAccount.getUsername(),response.getRole(), EXP_MS);
@@ -135,10 +136,10 @@ public class ProviderService {
         return provider;
     }
 
-    public Response addAccount(ProviderAccount account, String username, String role){
+    public Response<ProviderAccount> addAccount(ProviderAccount account, String username, String role){
         //account = 被添加账号 ， username = 操作者用户名 ， role = 操作者身份
 
-        Response resp = new Response();
+        Response<ProviderAccount> resp = new Response<>(account);
 
         //查找操作者信息
         //userAccount = 操作者信息
@@ -147,6 +148,7 @@ public class ProviderService {
         if(userAccount.getRole() != 1){
             resp.setCode(400);
             resp.setMessage("您不是管理员");
+            resp.setData(null);
             return resp;
         }
 
@@ -158,6 +160,7 @@ public class ProviderService {
         if(providerAccountMapper.selectProviderAccountByUsername(account.getUsername()) != null){
             resp.setCode(400);
             resp.setMessage("用户名已存在");
+            resp.setData(null);
             return resp;
         }
 
@@ -176,6 +179,9 @@ public class ProviderService {
         }
 
         providerAccountMapper.insertProviderAccount(account);
+
+        resp.setData(providerAccountMapper.selectProviderAccountByUsername(account.getUsername()));
+
         resp.setCode(200);
         resp.setMessage("账号已添加");
 

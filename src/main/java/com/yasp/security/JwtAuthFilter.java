@@ -18,11 +18,11 @@ import java.util.Set;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private static final Set<String> PUBLIC_PATHS = Set.of(
-            "/api/admin/login",
-            "/provider/login",
-            "/user/login",
-            "/provider/register",
-            "/user/register"
+            "/admins/login",
+            "/providers/login",
+            "/users/login",
+            "/providers",
+            "/users"
     );
 
     @Override
@@ -71,17 +71,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             chain.doFilter(req, resp);
             //从这开始注释
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            resp.getWriter().write("Invalid or expired token");
-        }
-            //以下测试用，先注释上面----^
 //        } catch (Exception e) {
-//            e.printStackTrace();
 //            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            resp.getWriter().write(
-//                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
-//            );
+//            resp.getWriter().write("Invalid or expired token");
 //        }
+            //以下测试用，先注释上面----^
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write(
+                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
+            );
+        }
     }
 }

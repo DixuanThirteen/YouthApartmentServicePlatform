@@ -26,9 +26,17 @@ public class ApartmentService {
     @Autowired
     private ProviderMapper providerMapper;
 
-    public Response addApartment(Apartment apartment, String username, String role) {
-        Response resp = new Response();
+    public Response<Apartment> addApartment(Apartment apartment, String username, String role) {
+        Response<Apartment> resp = new Response<>(apartment);
         Response.userProfile profile = new Response.userProfile();
+
+        if(!Objects.equals(role, "ROLE_PROVIDER_Admin") && !Objects.equals(role, "ROLE_PROVIDER_Staff")) {
+            resp.setCode(400);
+            resp.setMessage("您没有权限");
+            resp.setProfile(profile);
+            resp.setData(null);
+            return resp;
+        }
 
         ProviderAccount user = providerAccountMapper.selectProviderAccountByUsername(username);
 
@@ -36,22 +44,17 @@ public class ApartmentService {
         profile.setRole(role);
 
         Provider provider = providerMapper.selectProviderById(user.getProviderId());
-        if(!Objects.equals(role, "ROLE_PROVIDER_Admin") && !Objects.equals(role, "ROLE_PROVIDER_Staff")) {
-            resp.setCode(400);
-            resp.setMessage("您没有权限");
-            resp.setProfile(profile);
 
-            return resp;
-        }
-
-        if(apartment.getName() == null || apartment.getName().equals("")) {
+        if(apartment.getName() == null || apartment.getName().isEmpty()) {
             resp.setCode(400);
             resp.setMessage("你没有输入公寓名");
+            resp.setData(null);
         }
 
-        if(apartment.getName() != apartmentMapper.selectByNameAndProviderId(apartment.getName(), provider.getId()).getName()){
+        if(apartmentMapper.selectByNameAndProviderId(apartment.getName(), provider.getId()) != null){
             resp.setCode(400);
             resp.setMessage("名下公寓不能重名");
+            resp.setData(null);
             resp.setProfile(profile);
             return resp;
         }
@@ -62,6 +65,8 @@ public class ApartmentService {
 
         resp.setCode(200);
         resp.setMessage("success");
+
+        resp.setData(apartmentMapper.selectByName(apartment.getName()));
 
         profile.setUsername(username);
         profile.setRole(role);
@@ -100,13 +105,23 @@ public class ApartmentService {
         return  apartment;
     }
 
-    public Response updateApartment(Apartment apartment, String username, String role) {
-        Response resp = new Response();
+    public Response<Apartment> updateApartment(Long id, Apartment apartment, String username, String role) {
+        apartment.setId(id);
+        Response<Apartment> resp = new Response<>(apartment);
         Response.userProfile profile = new Response.userProfile();
 
+        if(!Objects.equals(role, "ROLE_PROVIDER_Admin") && !Objects.equals(role, "ROLE_PROVIDER_Staff")) {
+            resp.setCode(400);
+            resp.setMessage("您没有权限");
+            resp.setData(null);
+            return resp;
+        }
+        //操作者信息
         ProviderAccount user = providerAccountMapper.selectProviderAccountByUsername(username);
+        //操作者企业信息
         Provider provider = providerMapper.selectProviderById(user.getProviderId());
-        Apartment apartment1 = apartmentMapper.selectById(apartment.getId());
+        //目标公寓信息
+        Apartment apartment1 = apartmentMapper.selectById(id);
 
         //设置profile
         profile.setUsername(username);
@@ -114,19 +129,12 @@ public class ApartmentService {
         profile.setTeam(provider.getName());
         resp.setProfile(profile);
 
-        if(!Objects.equals(role, "ROLE_PROVIDER_Admin") && !Objects.equals(role, "ROLE_PROVIDER_Staff")) {
-            resp.setCode(400);
-            resp.setMessage("您没有权限");
 
-            return resp;
-        }
-
+        //判断目标公寓是否与操作者所属同一企业
         if(!Objects.equals(apartment1.getProviderId(), provider.getId())){
-            System.out.println("公寓所属企业id:"+apartment.getProviderId());
-            System.out.println("员工所属企业id:"+provider.getId());
             resp.setCode(400);
             resp.setMessage("您不是该企业员工");
-
+            resp.setData(null);
             return resp;
         }
 
@@ -135,10 +143,13 @@ public class ApartmentService {
         }catch (Exception e){
             resp.setCode(400);
             resp.setMessage("更新失败");
+            resp.setData(null);
             return resp;
         }
+        resp.setData(apartmentMapper.selectById(id));
         resp.setCode(200);
         resp.setMessage("success");
+
 
         return resp;
     }

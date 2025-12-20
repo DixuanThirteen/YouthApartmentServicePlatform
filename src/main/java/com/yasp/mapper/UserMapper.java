@@ -17,7 +17,12 @@ public interface UserMapper {
     // 通过邮箱查用户
     User selectByEmail(@Param("email") String email);
 
+    // 通过id查用户
+    User selectById(@Param("id") Long id);
+
     // 注册用户
     int insertUser(User user);
+
+    int updateUser(User user);
 
 }

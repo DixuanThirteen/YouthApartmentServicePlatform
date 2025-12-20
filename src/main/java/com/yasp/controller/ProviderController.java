@@ -15,7 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/provider")
+@RequestMapping("/providers")
 public class ProviderController {
     @Autowired
     private ProviderService providerService;
@@ -26,7 +26,7 @@ public class ProviderController {
     @Autowired
     private RoomTypeService roomTypeService;
 
-    @PostMapping("/register")
+    @PostMapping//注册
     public ResponseEntity<ProviderRegisterResponse> register(@RequestBody ProviderRegisterRequest request){
         ProviderRegisterResponse response = providerService.register(request);
         if(response.getCode() == 400){
@@ -44,7 +44,7 @@ public class ProviderController {
         return ResponseEntity.ok(resp);
     }
 
-    @PostMapping("/addAccount")
+    @PostMapping("/accounts")
     public ResponseEntity<Response> addAccount(
             @RequestBody ProviderAccount account,
             Authentication authentication
@@ -55,57 +55,6 @@ public class ProviderController {
                 .findFirst()
                 .orElse(null);
         Response resp = providerService.addAccount(account, username, role);
-        if(resp.getCode() == 400){
-            return ResponseEntity.badRequest().body(resp);
-        }
-        return ResponseEntity.ok(resp);
-    }
-
-    @PostMapping("/addApartment")
-    public ResponseEntity<Response> addApartment(
-            @RequestBody Apartment apartment,
-            Authentication authentication
-            ){
-        String username = authentication.getName();
-        String role = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse(null);
-        Response resp = apartmentService.addApartment(apartment, username, role);
-        if(resp.getCode() == 400){
-            return ResponseEntity.badRequest().body(resp);
-        }
-        return  ResponseEntity.ok(resp);
-    }
-
-    @PostMapping("/createRoomType")
-    public ResponseEntity<Response> createRoomType(
-            @RequestBody RoomType roomType,
-            Authentication authentication
-    ){
-        String username = authentication.getName();
-        String role = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse(null);
-        Response resp = roomTypeService.createRoomType(roomType, username, role);
-        if(resp.getCode() == 400){
-            return ResponseEntity.badRequest().body(resp);
-        }
-        return ResponseEntity.ok(resp);
-    }
-
-    @PutMapping("/apartment")
-    public ResponseEntity<Response> updateApartment(
-            @RequestBody Apartment apartment,
-            Authentication authentication
-    ){
-        String username = authentication.getName();
-        String role = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse(null);
-        Response resp = apartmentService.updateApartment(apartment, username, role);
         if(resp.getCode() == 400){
             return ResponseEntity.badRequest().body(resp);
         }

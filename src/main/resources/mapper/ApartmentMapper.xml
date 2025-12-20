@@ -124,6 +124,12 @@
         WHERE name = #{name} AND provider_id = #{providerId}
     </select>
 
+    <select id="selectByName" resultMap="ApartmentResultMap">
+        SELECT <include refid="ApartmentColumns"/>
+        FROM apartments
+        WHERE name = #{name}
+    </select>
+
 
 
 

@@ -12,6 +12,8 @@ public interface ApartmentMapper {
 
     Apartment selectById(@Param("id") Long id);
 
+    Apartment selectByName(@Param("name") String name);
+
     List<Apartment> selectByProviderId(@Param("providerId") Long providerId);
 
     int insert(Apartment apartment);

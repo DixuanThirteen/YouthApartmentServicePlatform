@@ -1,15 +1,18 @@
 package com.yasp.service;
 
 import com.yasp.dto.LoginResponse;
+import com.yasp.dto.Response;
 import com.yasp.dto.UserRegisterRequest;
 import com.yasp.dto.UserRegisterResponse;
 import com.yasp.entity.User;
 import com.yasp.mapper.UserMapper;
 import com.yasp.security.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service // 1. 标识本类是Service组件，交给Spring容器管理，属于业务逻辑层
 public class UserService {
     @Autowired // 2. 由Spring自动装配UserMapper实例（依赖注入，简化手动new对象）
@@ -100,6 +103,48 @@ public class UserService {
         Response.setMessage("登录成功");
 
         return Response;
+    }
+
+    public  User userDetail(Long id) {
+        User user = userMapper.selectById(id);
+        return user;
+    }
+
+    public Response<User> userUpdate(
+            Long id,
+            User user,
+            String username,
+            String role){
+        Response<User> resp = new Response<>(user);
+        Response.userProfile profile = new Response.userProfile();
+        profile.setUsername(username);
+        profile.setRole(role);
+        resp.setProfile(profile);
+
+        User userOperator = userMapper.selectByUsername(username);
+
+        if(!userOperator.getId().equals(id)){
+            resp.setCode(400);
+            resp.setMessage("您不能修改他人信息");
+            resp.setData(null);
+            return resp;
+        }
+
+        try {
+            user.setId(id);
+            userMapper.updateUser(user);
+        }catch (Exception e){
+            resp.setCode(400);
+            resp.setMessage(e.getMessage()+"更新失败");
+            resp.setData(null);
+            return resp;
+        }
+
+        resp.setData(userMapper.selectById(id));
+        resp.setCode(200);
+        resp.setMessage("success");
+
+        return resp;
     }
 
     }

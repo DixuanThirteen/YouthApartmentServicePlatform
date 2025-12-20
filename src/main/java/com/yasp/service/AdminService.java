@@ -35,6 +35,7 @@ public class AdminService {
         if(!passwordEncoder.matches(password, admin.getPassword())){
             Response.setCode(400);
             Response.setMessage("密码错误");
+            return Response;
         }
 
         Response.setRole(LoginResponse.Role.ADMIN);

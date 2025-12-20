@@ -27,13 +27,21 @@ public class RoomTypeService {
     @Autowired
     private ProviderMapper providerMapper;
 
-    public Response createRoomType(RoomType roomType, String username, String role) {
-        Response resp = new Response();
+    public Response<RoomType> createRoomType(RoomType roomType, String username, String role) {
+        Response<RoomType> resp = new Response<>(roomType);
         Response.userProfile profile = new Response.userProfile();
+
+        if(!Objects.equals(role, "ROLE_PROVIDER_Admin") && !Objects.equals(role, "ROLE_PROVIDER_Staff")) {
+            resp.setCode(400);
+            resp.setMessage("您没有权限");
+            resp.setData(null);
+            return resp;
+        }
 
         if(roomType.getApartmentId() == null){
             resp.setCode(400);
             resp.setMessage("没有指定公寓");
+            resp.setData(null);
             return resp;
         }
 
@@ -48,24 +56,19 @@ public class RoomTypeService {
         profile.setTeam(team);
         resp.setProfile(profile);
 
-        if(!Objects.equals(role, "ROLE_PROVIDER_Admin") && !Objects.equals(role, "ROLE_PROVIDER_Staff")) {
-            resp.setCode(400);
-            resp.setMessage("您没有权限");
-
-            return resp;
-        }
-
         Apartment apartment = apartmentMapper.selectById(roomType.getApartmentId());
 
         if(!Objects.equals(apartment.getProviderId(), provider.getId())) {
             resp.setCode(400);
             resp.setMessage("您不是该企业员工");
+            resp.setData(null);
             return resp;
         }
 
         if(roomTypeMapper.selectRoomTypeByName(roomType.getName()) != null){
             resp.setCode(400);
             resp.setMessage("房型名不能重复");
+            resp.setData(null);
             return resp;
         }
 
