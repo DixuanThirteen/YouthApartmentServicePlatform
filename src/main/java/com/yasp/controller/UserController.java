@@ -1,13 +1,12 @@
 package com.yasp.controller;
 
 import com.yasp.dto.*;
-import com.yasp.entity.Apartment;
-import com.yasp.entity.RoomType;
 import com.yasp.entity.User;
 import com.yasp.mapper.RoomTypeMapper;
 import com.yasp.service.ApartmentService;
 import com.yasp.service.RoomTypeService;
 import com.yasp.service.UserService;
+import com.yasp.service.JwtTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController // 1. 标记这是一个Rest接口控制器，返回JSON（不渲染页面）
@@ -31,6 +28,9 @@ public class UserController {
     private RoomTypeMapper roomTypeMapper;
     @Autowired
     private RoomTypeService roomTypeService;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
 
     //注册
     @PostMapping
@@ -91,6 +91,37 @@ public class UserController {
         if(resp.getCode() == 400){
             return ResponseEntity.badRequest().body(resp);
         }
+        return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Response<String>> logout(Authentication authentication,
+                                                   @RequestHeader("Authorization") String token) {
+        Response<String> resp = new Response<>(null);
+
+        if (authentication == null || token == null || token.isEmpty()) {
+            resp.setCode(400);
+            resp.setMessage("Authorization token is required");
+            return ResponseEntity.badRequest()
+                    .body(resp);
+        }
+
+        // 从 Authorization 请求头提取 JWT
+        String jwt = token.replace("Bearer ", "");
+
+        // 调用服务层处理注销逻辑
+        boolean isLoggedOut = jwtTokenService.invalidateToken(jwt);
+
+        if (!isLoggedOut) {
+            resp.setCode(500);
+            resp.setMessage("Logout Failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(resp);
+        }else {
+            resp.setCode(200);
+            resp.setMessage("Logged out successfully");
+        }
+
         return ResponseEntity.ok(resp);
     }
 

@@ -1,6 +1,7 @@
 package com.yasp.config;
 
 import com.yasp.security.JwtAuthFilter;
+import com.yasp.service.JwtTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,8 +20,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthFilter jwtAuthFilter() {
-        return new JwtAuthFilter();
+    public JwtAuthFilter jwtAuthFilter(JwtTokenService jwtTokenService) {
+        return new JwtAuthFilter(jwtTokenService);
     }
 
     @Bean

@@ -1,5 +1,6 @@
 package com.yasp.security;
 
+import com.yasp.service.JwtTokenService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,8 @@ import java.util.Set;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    private final JwtTokenService jwtTokenService;
+
     private static final Set<String> PUBLIC_PATHS = Set.of(
             "/admins/login",
             "/providers/login",
@@ -25,6 +28,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/users"
     );
 
+    // 通过构造器注入 jwtTokenService
+    public JwtAuthFilter(JwtTokenService jwtTokenService) {
+        this.jwtTokenService = jwtTokenService;
+    }
+
+    //指定无需过滤路径
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return PUBLIC_PATHS.contains(request.getRequestURI());
@@ -38,6 +47,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     ) throws IOException, ServletException {
         //测试用
 //        System.out.println("URI=" + req.getRequestURI() + ", Authorization=" + req.getHeader("Authorization"));
+
+        //获取 Authorization 头
         String authHeader = req.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             // 你目前是“缺 token 就 401”
@@ -46,7 +57,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7);// 去掉 "Bearer " 前缀
+
+        // 检查令牌是否被列入黑名单
+        if (jwtTokenService.isTokenBlacklisted(token)) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("Token has been blacklisted");
+            return; // 停止后续过滤，直接返回响应
+        }
 
         try {
             Claims claims = JwtUtil.parseToken(token);
@@ -55,12 +73,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String username = (String) claims.get("username");
             String role = (String) claims.get("role");
 
-            // 1) 仍然可选：写到 request attribute（给你自己用）
+            // 写到 request attribute
             req.setAttribute("userId", userId);
             req.setAttribute("username", username);
             req.setAttribute("role", role);
 
-            // 2) 关键：写入 Spring Security 上下文（Principal 才能取到）
+            // 写入 Spring Security 上下文（Principal 才能取到）
             // 写入 SecurityContext，Controller 才能用 Principal
             var authorities = role == null
                     ? List.<SimpleGrantedAuthority>of()
@@ -71,17 +89,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             chain.doFilter(req, resp);
             //从这开始注释
-//        } catch (Exception e) {
-//            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            resp.getWriter().write("Invalid or expired token");
-//        }
-            //以下测试用，先注释上面----^
         } catch (Exception e) {
-            e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            resp.getWriter().write(
-                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
-            );
+            resp.getWriter().write("Invalid or expired token");
         }
+            //以下测试用，先注释上面----^
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            resp.getWriter().write(
+//                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
+//            );
+//        }
     }
 }
