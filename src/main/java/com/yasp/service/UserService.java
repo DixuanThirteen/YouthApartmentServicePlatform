@@ -1,9 +1,6 @@
 package com.yasp.service;
 
-import com.yasp.dto.LoginResponse;
-import com.yasp.dto.Response;
-import com.yasp.dto.UserRegisterRequest;
-import com.yasp.dto.UserRegisterResponse;
+import com.yasp.dto.*;
 import com.yasp.entity.User;
 import com.yasp.mapper.UserMapper;
 import com.yasp.security.JwtUtil;
@@ -11,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Slf4j
 @Service // 1. 标识本类是Service组件，交给Spring容器管理，属于业务逻辑层
@@ -144,6 +143,56 @@ public class UserService {
         resp.setCode(200);
         resp.setMessage("success");
 
+        return resp;
+    }
+
+    public Response<User> changePassword(
+            Long id,
+            UpdatePasswordRequest request,
+            String username) {
+
+        Response<User> resp = new Response<>(null);
+        User user = userMapper.selectByUsername(username);
+
+        Response.userProfile profile = new Response.userProfile();
+        profile.setUsername(username);
+        resp.setProfile(profile);
+
+        if(request.getOldPassword()==null || request.getNewPassword()==null || request.getReNewPassword()==null){
+            resp.setCode(400);
+            resp.setMessage("不能为空");
+            return resp;
+        }
+
+        if(!Objects.equals(request.getNewPassword(), request.getReNewPassword())){
+            resp.setCode(400);
+            resp.setMessage("新密码不一致");
+        }
+
+        if(!Objects.equals(id, user.getId())){
+            resp.setCode(400);
+            resp.setMessage("您不能修改他人密码/该用户不存在");
+            return  resp;
+        }
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
+            resp.setCode(400);
+            resp.setMessage("旧密码错误");
+            return resp;
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+            resp.setCode(400);
+            resp.setMessage("新密码不能与旧密码重复");
+            return resp;
+        }
+
+        String newencode = passwordEncoder.encode(request.getNewPassword());
+
+        userMapper.updatePassword(id, newencode);
+
+        resp.setCode(200);
+        resp.setMessage("success");
         return resp;
     }
 

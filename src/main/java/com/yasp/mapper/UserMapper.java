@@ -23,6 +23,10 @@ public interface UserMapper {
     // 注册用户
     int insertUser(User user);
 
+    //更新用户信息
     int updateUser(User user);
+
+    //更新密码
+    int updatePassword(@Param("id") Long id, @Param("password") String password);
 
 }

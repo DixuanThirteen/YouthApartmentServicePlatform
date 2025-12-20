@@ -80,5 +80,19 @@ public class UserController {
         return ResponseEntity.ok(resp);
     }
 
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Response<User>> changePassword(
+            @PathVariable Long id,
+            @RequestBody UpdatePasswordRequest request,
+            Authentication authentication
+    ){
+        String username = authentication.getName();
+        Response<User> resp = userService.changePassword(id, request, username);
+        if(resp.getCode() == 400){
+            return ResponseEntity.badRequest().body(resp);
+        }
+        return ResponseEntity.ok(resp);
+    }
+
 
 }

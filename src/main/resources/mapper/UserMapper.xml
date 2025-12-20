@@ -174,4 +174,12 @@
         </set>
         WHERE id = #{id}
     </update>
+
+    <update id="updatePassword">
+        UPDATE users
+        <set>
+            hash_password = #{password} <!-- 动态更新密码 -->
+        </set>
+        WHERE id = #{id};
+    </update>
 </mapper>
