@@ -44,4 +44,35 @@ public class RoomTypeController {
         }
         return ResponseEntity.ok(resp);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Response<RoomType>> getRoomType(@PathVariable Long id){
+        Response<RoomType> resp = roomTypeService.getRoomTypeById(id);
+        if(resp.getCode() == 400){
+            return ResponseEntity.badRequest().body(resp);
+        }else if(resp.getCode() == 500){
+            return ResponseEntity.internalServerError().body(resp);
+        }
+        return ResponseEntity.ok(resp);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Response<RoomType>> updateRoomType(
+            @PathVariable Long id,
+            @RequestBody RoomType roomType,
+            Authentication authentication){
+        String username = authentication.getName();
+        String role = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse(null);
+        Response<RoomType> resp = roomTypeService.updateRoomType(id, roomType, username, role);
+        if(resp.getCode() == 400){
+            return ResponseEntity.badRequest().body(resp);
+        }else if(resp.getCode() == 500){
+            return ResponseEntity.internalServerError().body(resp);
+        }
+        return ResponseEntity.ok(resp);
+
+    }
 }

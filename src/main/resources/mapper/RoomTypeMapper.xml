@@ -86,23 +86,24 @@
 
     <update id="updateById" parameterType="com.yasp.entity.RoomType">
         UPDATE room_types
-        SET
-            apartment_id = #{apartmentId},
-            name = #{name},
-            bedroom_count = #{bedroomCount},
-            living_count = #{livingCount},
-            bathroom_count = #{bathroomCount},
-            kitchen_count = #{kitchenCount},
-            area_sqm = #{areaSqm},
-            bed_count = #{bedCount},
-            capacity = #{capacity},
-            rent_cent = #{rentCent},
-            deposit_cent = #{depositCent},
-            has_window = #{hasWindow},
-            has_balcony = #{hasBalcony},
-            orientation = #{orientation},
-            description = #{description},
-            status = #{status}
+        <set>
+            <if test="apartmentId != null">apartment_id = #{apartmentId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="bedroomCount != null">bedroom_count = #{bedroomCount},</if>
+            <if test="livingCount != null">living_count = #{livingCount},</if>
+            <if test="bathroomCount != null">bathroom_count = #{bathroomCount},</if>
+            <if test="kitchenCount != null">kitchen_count = #{kitchenCount},</if>
+            <if test="areaSqm != null">area_sqm = #{areaSqm},</if>
+            <if test="bedCount != null">bed_count = #{bedCount},</if>
+            <if test="capacity != null">capacity = #{capacity},</if>
+            <if test="rentCent != null">rent_cent = #{rentCent},</if>
+            <if test="depositCent != null">deposit_cent = #{depositCent},</if>
+            <if test="hasWindow != null">has_window = #{hasWindow},</if>
+            <if test="hasBalcony != null">has_balcony = #{hasBalcony},</if>
+            <if test="orientation != null">orientation = #{orientation},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
         WHERE id = #{id}
     </update>
 
