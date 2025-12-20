@@ -2,9 +2,6 @@ package com.yasp.controller;
 
 import com.yasp.dto.*;
 import com.yasp.entity.User;
-import com.yasp.mapper.RoomTypeMapper;
-import com.yasp.service.ApartmentService;
-import com.yasp.service.RoomTypeService;
 import com.yasp.service.UserService;
 import com.yasp.service.JwtTokenService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +18,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired // 3. 自动注入Service层对象
     private UserService userService;
-
-    @Autowired
-    private ApartmentService apartmentService;
-    @Autowired
-    private RoomTypeMapper roomTypeMapper;
-    @Autowired
-    private RoomTypeService roomTypeService;
 
     @Autowired
     private JwtTokenService jwtTokenService;
