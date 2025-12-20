@@ -20,4 +20,6 @@ public interface RoomMapper {
     int updateById(Room room);
 
     int deleteById(@Param("id") Long id);
+
+    int batchInsert(List<Room> rooms);
 }

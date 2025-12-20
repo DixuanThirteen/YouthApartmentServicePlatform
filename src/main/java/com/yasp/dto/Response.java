@@ -9,6 +9,7 @@ public class Response<T> {
     private String message;
     private userProfile profile;
     private T Data;
+    private Integer total;
 
     @Data
     @AllArgsConstructor

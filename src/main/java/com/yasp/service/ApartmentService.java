@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,31 +79,76 @@ public class ApartmentService {
 
     }
 
-    public List<Apartment> getAllApartments() {
-        List<Apartment> apartments = apartmentMapper.selectAll();
-        return apartments;
-    }
+    public Response<List<Apartment>> getAllApartments() {
+        Response<List<Apartment>> resp = new Response<>(null);
 
-    public List<Apartment> searchApartments(ApartmentSearchRequest apartment) {
-        List<Apartment> apartments = apartmentMapper.searchApartments(apartment);
+        List<Apartment> apartments;
 
-        String message = null;
-        if (apartments == null || apartments.isEmpty()) {
-            message = "找不到符合要求的公寓";
-            log.info(message);
+        try {
+            apartments = apartmentMapper.selectAll();
+        }catch (Exception e){
+            resp.setCode(500);
+            resp.setMessage(e.getMessage());
+            return resp;
         }
 
-        return apartments;
+        resp.setCode(200);
+        resp.setMessage("success");
+        resp.setTotal(apartments.size());
+        resp.setData(apartments);
+        return resp;
     }
 
-    public Apartment getApartmentById(Long id) {
-        Apartment apartment = apartmentMapper.selectById(id);
+    public Response<List<Apartment>> searchApartments(ApartmentSearchRequest apartment) {
+        Response<List<Apartment>> resp = new Response<>(null);
+
+        if (apartment == null) {
+            resp = getAllApartments();
+            return resp;
+        }
+
+        List<Apartment> apartments;
+
+        try {
+            apartments = apartmentMapper.searchApartments(apartment);
+        }catch (Exception e){
+            resp.setCode(500);
+            resp.setMessage(e.getMessage());
+            return resp;
+        }
+
+        resp.setCode(200);
+        if (apartments == null || apartments.isEmpty()) {
+            resp.setMessage("未找到符合要求的公寓");
+            return resp;
+        }
+
+        resp.setData(apartments);
+        resp.setTotal(apartments.size());
+
+        return resp;
+    }
+
+    public Response<Apartment> getApartmentById(Long id) {
+        Response<Apartment> resp = new Response<>(null);
+
+        Apartment apartment;
+        try {
+            apartment = apartmentMapper.selectById(id);
+        }catch (Exception e){
+            resp.setCode(500);
+            resp.setMessage(e.getMessage());
+            return resp;
+        }
 
         if(apartment == null){
             log.info("apartment not found");
         }
+        resp.setCode(200);
+        resp.setMessage("success");
+        resp.setData(apartment);
 
-        return  apartment;
+        return  resp;
     }
 
     public Response<Apartment> updateApartment(Long id, Apartment apartment, String username, String role) {

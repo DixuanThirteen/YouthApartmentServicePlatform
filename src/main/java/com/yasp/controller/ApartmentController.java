@@ -20,24 +20,35 @@ public class ApartmentController {
 
 
     @GetMapping//获取所有公寓
-    public ResponseEntity<List<Apartment>> apartmentView(Authentication authentication){
-        List<Apartment> resp = apartmentService.getAllApartments();
+    public ResponseEntity<Response<List<Apartment>>> apartmentView(Authentication authentication){
+        Response<List<Apartment>> resp = apartmentService.getAllApartments();
+
+        if (resp.getCode() == 400) {
+            return ResponseEntity.badRequest().body(resp);
+        } else if (resp.getCode() == 500) {
+            return ResponseEntity.internalServerError().body(resp);
+        }
         return ResponseEntity.ok(resp);
     }
 
     @GetMapping("/search")//搜索公寓
-    public ResponseEntity<List<Apartment>> searchApartments(@RequestBody ApartmentSearchRequest apartment){
-        List<Apartment> resp = apartmentService.searchApartments(apartment);
+    public ResponseEntity<Response<List<Apartment>>> searchApartments(@RequestBody ApartmentSearchRequest apartment){
+        Response<List<Apartment>> resp = apartmentService.searchApartments(apartment);
+        if (resp.getCode() == 400) {
+            return ResponseEntity.badRequest().body(resp);
+        }else if (resp.getCode() == 500) {
+            return ResponseEntity.internalServerError().body(resp);
+        }
         return ResponseEntity.ok(resp);
     }
 
     @GetMapping("/{id}")//根据id获取公寓详情
-    public ResponseEntity<Apartment> oneApartment(@PathVariable Long id){
-        Apartment apartment = apartmentService.getApartmentById(id);
-        if(apartment == null){
+    public ResponseEntity<Response<Apartment>> oneApartment(@PathVariable Long id){
+        Response<Apartment> resp = apartmentService.getApartmentById(id);
+        if(resp == null){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(apartment);
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping//创建公寓

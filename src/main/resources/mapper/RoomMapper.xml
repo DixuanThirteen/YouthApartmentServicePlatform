@@ -85,26 +85,43 @@
 
     <update id="updateById" parameterType="com.yasp.entity.Room">
         UPDATE rooms
-        SET
-            apartment_id = #{apartmentId},
-            room_type_id = #{roomTypeId},
-            building_no = #{buildingNo},
-            unit_no = #{unitNo},
-            floor_no = #{floorNo},
-            room_no = #{roomNo},
-            display_name = #{displayName},
-            area_sqm = #{areaSqm},
-            orientation = #{orientation},
-            rent_cent = #{rentCent},
-            deposit_cent = #{depositCent},
-            status = #{status},
-            rent_status = #{rentStatus},
-            room_code = #{roomCode}
+        <set>
+            <if test="apartmentId != null">apartment_id = #{apartmentId},</if>
+            <if test="roomTypeId != null">room_type_id = #{roomTypeId},</if>
+            <if test="buildingNo != null">building_no = #{buildingNo},</if>
+            <if test="unitNo != null">unit_no = #{unitNo},</if>
+            <if test="floorNo != null">floor_no = #{floorNo},</if>
+            <if test="roomNo != null">room_no = #{roomNo},</if>
+            <if test="displayName != null">display_name = #{displayName},</if>
+            <if test="areaSqm != null">area_sqm = #{areaSqm},</if>
+            <if test="orientation != null">orientation = #{orientation},</if>
+            <if test="rentCent != null">rent_cent = #{rentCent},</if>
+            <if test="depositCent != null">deposit_cent = #{depositCent},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="rentStatus != null">rent_status = #{rentStatus},</if>
+            <if test="roomCode != null">room_code = #{roomCode}</if>
+        </set>
         WHERE id = #{id}
     </update>
 
     <delete id="deleteById">
         DELETE FROM rooms WHERE id = #{id}
     </delete>
+
+    <insert id="batchInsert" parameterType="list">
+        INSERT INTO rooms (
+        apartment_id, room_type_id,
+        building_no, unit_no, floor_no, room_no, display_name,
+        area_sqm, orientation, rent_cent, deposit_cent,
+        status, rent_status,
+        room_code
+        ) VALUES
+        <foreach collection="list" item="room" separator=",">
+            (#{room.apartmentId}, #{room.roomTypeId},
+            #{room.buildingNo}, #{room.unitNo}, #{room.floorNo}, #{room.roomNo}, #{room.displayName},
+            #{room.areaSqm}, #{room.orientation}, #{room.rentCent}, #{room.depositCent},
+            #{room.status}, #{room.rentStatus}, #{room.roomCode})
+        </foreach>
+    </insert>
 
 </mapper>
