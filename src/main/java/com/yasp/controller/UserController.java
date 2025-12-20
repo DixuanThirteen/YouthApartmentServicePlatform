@@ -66,7 +66,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Response> userUpdate(
+    public ResponseEntity<Response<User>> userUpdate(
             @PathVariable Long id,
             @RequestBody User user,
             Authentication authentication){
@@ -75,7 +75,7 @@ public class UserController {
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse(null);
-        Response resp = userService.userUpdate(id, user, username, role);
+        Response<User> resp = userService.userUpdate(id, user, username, role);
 
         return ResponseEntity.ok(resp);
     }

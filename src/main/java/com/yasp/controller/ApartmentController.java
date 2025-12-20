@@ -41,7 +41,7 @@ public class ApartmentController {
     }
 
     @PostMapping//创建公寓
-    public ResponseEntity<Response> addApartment(
+    public ResponseEntity<Response<Apartment>> addApartment(
             @RequestBody Apartment apartment,
             Authentication authentication
     ){
@@ -50,7 +50,7 @@ public class ApartmentController {
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse(null);
-        Response resp = apartmentService.addApartment(apartment, username, role);
+        Response<Apartment> resp = apartmentService.addApartment(apartment, username, role);
         if(resp.getCode() == 400){
             return ResponseEntity.badRequest().body(resp);
         }

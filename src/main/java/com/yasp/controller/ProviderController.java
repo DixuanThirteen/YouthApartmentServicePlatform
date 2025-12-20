@@ -45,7 +45,7 @@ public class ProviderController {
     }
 
     @PostMapping("/accounts")
-    public ResponseEntity<Response> addAccount(
+    public ResponseEntity<Response<ProviderAccount>> addAccount(
             @RequestBody ProviderAccount account,
             Authentication authentication
     ) {
@@ -54,7 +54,7 @@ public class ProviderController {
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse(null);
-        Response resp = providerService.addAccount(account, username, role);
+        Response<ProviderAccount> resp = providerService.addAccount(account, username, role);
         if(resp.getCode() == 400){
             return ResponseEntity.badRequest().body(resp);
         }

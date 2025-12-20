@@ -29,7 +29,7 @@ public class RoomTypeController {
     }
 
     @PostMapping//创建房型
-    public ResponseEntity<Response> createRoomType(
+    public ResponseEntity<Response<RoomType>> createRoomType(
             @RequestBody RoomType roomType,
             Authentication authentication
     ){
@@ -38,7 +38,7 @@ public class RoomTypeController {
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse(null);
-        Response resp = roomTypeService.createRoomType(roomType, username, role);
+        Response<RoomType> resp = roomTypeService.createRoomType(roomType, username, role);
         if(resp.getCode() == 400){
             return ResponseEntity.badRequest().body(resp);
         }
