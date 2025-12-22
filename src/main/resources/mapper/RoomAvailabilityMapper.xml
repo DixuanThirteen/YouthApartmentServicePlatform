@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.RoomAvailabilityMapper">
+
+    <!-- Result Map -->
+    <resultMap id="RoomAvailabilityResultMap" type="com.yasp.entity.RoomAvailability">
+        <id column="id" property="id"/>
+        <result column="room_id" property="roomId"/>
+        <result column="occupied_from" property="occupiedFrom"/>
+        <result column="occupied_to" property="occupiedTo"/>
+        <result column="source" property="source"/>
+        <result column="source_id" property="sourceId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 插入占用记录 -->
+    <insert id="insert" parameterType="com.yasp.entity.RoomAvailability" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO room_availability (
+            room_id, occupied_from, occupied_to,
+            source, source_id
+        ) VALUES (
+                     #{roomId}, #{occupiedFrom}, #{occupiedTo},
+                     #{source}, #{sourceId}
+                 )
+    </insert>
+
+    <!-- 检查房间在某时间段是否存在占用冲突 -->
+    <select id="checkConflict" resultType="int">
+        SELECT COUNT(*)
+        FROM room_availability
+        WHERE room_id = #{roomId}
+        AND (
+        (occupied_from &lt;= #{checkEndDate} AND occupied_to &gt;= #{checkStartDate})
+        )
+    </select>
+
+    <!-- 根据房间 ID 查询占用记录 -->
+    <select id="selectByRoomId" resultMap="RoomAvailabilityResultMap">
+        SELECT *
+        FROM room_availability
+        WHERE room_id = #{roomId}
+        ORDER BY occupied_from ASC
+    </select>
+
+    <!-- 根据来源类型和来源 ID 删除记录 -->
+    <delete id="deleteBySource">
+        DELETE FROM room_availability
+        WHERE source = #{source}
+          AND source_id = #{sourceId}
+    </delete>
+
+</mapper>

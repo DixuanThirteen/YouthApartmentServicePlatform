@@ -26,7 +26,7 @@ CREATE TABLE rooms (
   deposit_cent     INT UNSIGNED,                    -- 分；为空则走 room_types.deposit_cent
 
   status           TINYINT NOT NULL DEFAULT 1,
-  rent_status      TINYINT NOT NULL DEFAULT 0,       -- 0空置 1预订 2出租 3下架(自定义)
+  rent_status      TINYINT NOT NULL DEFAULT 0,       -- 0空置 1待确认 2预订 3出租 4下架(自定义)
 
   created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

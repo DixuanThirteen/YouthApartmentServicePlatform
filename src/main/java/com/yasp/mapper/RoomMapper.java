@@ -22,4 +22,8 @@ public interface RoomMapper {
     int deleteById(@Param("id") Long id);
 
     int batchInsert(List<Room> rooms);
+
+    Room selectAvailableRoomByRoomTypeId(Long RoomTypeId);
+    // 更新房间租赁状态
+    int updateRentStatus(@Param("roomId") Long roomId, @Param("rentStatus") int rentStatus);
 }

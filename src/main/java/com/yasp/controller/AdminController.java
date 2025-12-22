@@ -2,6 +2,8 @@ package com.yasp.controller;
 
 import com.yasp.dto.LoginRequest;
 import com.yasp.dto.LoginResponse;
+import com.yasp.dto.Response;
+import com.yasp.entity.Admin;
 import com.yasp.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +29,14 @@ public class AdminController {
             return ResponseEntity.badRequest().body(response);
         }
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<Response<Admin>> addAdmin(@RequestBody LoginRequest request){
+        Response<Admin> resp = adminService.addAdmin(request);
+        if(resp.getCode() == 400){
+            return ResponseEntity.badRequest().body(resp);
+        }
+        return ResponseEntity.ok(resp);
     }
 }

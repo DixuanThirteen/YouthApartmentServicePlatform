@@ -31,4 +31,9 @@
         WHERE username = #{username}
     </select>
 
+    <insert id="insertAdmin" parameterType="string">
+        INSERT INTO admin (username, password_hash, created_at, updated_at)
+        VALUES (#{username}, #{password}, NOW(), NOW())
+    </insert>
+
 </mapper>

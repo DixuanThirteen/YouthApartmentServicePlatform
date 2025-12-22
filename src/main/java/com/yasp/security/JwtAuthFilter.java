@@ -21,6 +21,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtTokenService jwtTokenService;
 
     private static final Set<String> PUBLIC_PATHS = Set.of(
+            "/admins",
             "/admins/login",
             "/providers/login",
             "/users/login",
@@ -51,9 +52,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         //获取 Authorization 头
         String authHeader = req.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            // 你目前是“缺 token 就 401”
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            resp.getWriter().write("Missing or invalid Authorization header");
+
+            chain.doFilter(req, resp);
             return;
         }
 
@@ -89,17 +89,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             chain.doFilter(req, resp);
             //从这开始注释
-        } catch (Exception e) {
-            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            resp.getWriter().write("Invalid or expired token");
-        }
-            //以下测试用，先注释上面----^
 //        } catch (Exception e) {
-//            e.printStackTrace();
 //            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            resp.getWriter().write(
-//                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
-//            );
+//            resp.getWriter().write("Invalid or expired token");
 //        }
+            //以下测试用，先注释上面----^
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write(
+                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
+            );
+        }
     }
 }

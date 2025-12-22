@@ -31,7 +31,7 @@ public class ApartmentController {
         return ResponseEntity.ok(resp);
     }
 
-    @GetMapping("/search")//搜索公寓
+    @PostMapping("/search")//搜索公寓
     public ResponseEntity<Response<List<Apartment>>> searchApartments(@RequestBody ApartmentSearchRequest apartment){
         Response<List<Apartment>> resp = apartmentService.searchApartments(apartment);
         if (resp.getCode() == 400) {
@@ -82,6 +82,17 @@ public class ApartmentController {
         Response<Apartment> resp = apartmentService.updateApartment(id, apartment, username, role);
         if(resp.getCode() == 400){
             return ResponseEntity.badRequest().body(resp);
+        }
+        return ResponseEntity.ok(resp);
+    }
+
+    @GetMapping("/provider/{provider}")
+    public ResponseEntity<Response<List<Apartment>>> getApartmentsByProvider(@PathVariable String provider){
+        Response<List<Apartment>> resp = apartmentService.getApartmentByProvider(provider);
+        if (resp.getCode() == 400) {
+            return ResponseEntity.badRequest().body(resp);
+        }else if (resp.getCode() == 500) {
+            return ResponseEntity.internalServerError().body(resp);
         }
         return ResponseEntity.ok(resp);
     }

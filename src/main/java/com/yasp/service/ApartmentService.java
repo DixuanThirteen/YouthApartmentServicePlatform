@@ -200,4 +200,39 @@ public class ApartmentService {
         return resp;
     }
 
+    public Response<List<Apartment>> getApartmentByProvider(String providerName) {
+        Response<List<Apartment>> resp = new Response<>(null);
+
+        Provider provider;
+
+        try {
+            provider = providerMapper.SelectProviderByName(providerName);
+        }catch (Exception e){
+            resp.setCode(500);
+            resp.setMessage(e.getMessage());
+            return resp;
+        }
+
+        List<Apartment> apartments =  new ArrayList<>();
+
+        try{
+            apartments = apartmentMapper.selectByProviderId(provider.getId());
+        }catch (Exception e){
+            resp.setCode(500);
+            resp.setMessage(e.getMessage());
+        }
+
+        if(apartments == null || apartments.isEmpty()) {
+            resp.setCode(400);
+            resp.setMessage("没有相关公寓");
+            return resp;
+        }
+
+        resp.setCode(200);
+        resp.setMessage("success");
+        resp.setData(apartments);
+        resp.setTotal(apartments.size());
+
+        return resp;
+    }
 }

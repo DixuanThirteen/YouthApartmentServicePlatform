@@ -32,7 +32,7 @@ public class User {
 
     private Gender gender; // ENUM('male','female')
 
-    private String avatar = "/images/DefaultAvatar.png";
+    private String avatar;
 
     private String introduction;
 

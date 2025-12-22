@@ -124,4 +124,19 @@
         </foreach>
     </insert>
 
+    <select id="selectAvailableRoomByRoomTypeId" resultMap="RoomResultMap">
+        SELECT * FROM rooms
+        WHERE room_type_id = #{roomTypeId}
+          AND rent_status = 0
+        LIMIT 1
+    </select>
+
+    <!-- 更新房间租赁状态 -->
+    <update id="updateRentStatus">
+        UPDATE rooms
+        SET rent_status = #{rentStatus},
+            updated_at = NOW()
+        WHERE id = #{roomId};
+    </update>
+
 </mapper>

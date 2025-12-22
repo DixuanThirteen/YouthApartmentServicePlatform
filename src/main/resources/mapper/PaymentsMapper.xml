@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.PaymentsMapper">
+
+    <!-- ResultMap 对应 Payments 实体类 -->
+    <resultMap id="PaymentsResultMap" type="com.yasp.entity.Payments">
+        <id column="id" property="id"/>
+        <result column="payment_id" property="paymentId"/>
+        <result column="booking_id" property="bookingId"/>
+        <result column="amount_cent" property="amountCent"/>
+        <result column="status" property="status"/>
+        <result column="gateway_response" property="gatewayResponse"/>
+        <result column="transaction_id" property="transactionId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 插入支付记录 -->
+    <insert id="insertPayment" parameterType="com.yasp.entity.Payments" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO payments (payment_id, booking_id, amount_cent, status)
+        VALUES (#{paymentId}, #{bookingId}, #{amountCent}, 'PENDING');
+    </insert>
+
+    <!-- 更新支付状态 -->
+    <update id="updatePaymentStatus">
+        UPDATE payments
+        SET status = #{status}, updated_at = NOW()
+        WHERE payment_id = #{paymentId};
+    </update>
+
+    <!-- 查询支付状态 -->
+    <select id="selectPaymentStatus" resultType="string">
+        SELECT status
+        FROM payments
+        WHERE payment_id = #{paymentId};
+    </select>
+
+    <!-- 根据 paymentId 查询支付记录 -->
+    <select id="selectByPaymentId" resultMap="PaymentsResultMap">
+        SELECT *
+        FROM payments
+        WHERE payment_id = #{paymentId};
+    </select>
+
+    <select id = "selectPaymentByBookingId" resultMap="PaymentsResultMap">
+        SELECT *
+        FROM payments
+        WHERE booking_id = #{bookingId}
+    </select>
+
+</mapper>

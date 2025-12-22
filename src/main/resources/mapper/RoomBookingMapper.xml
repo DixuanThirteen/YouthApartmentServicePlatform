@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.RoomBookingMapper">
+
+    <!-- Result Map -->
+    <resultMap id="RoomBookingResultMap" type="com.yasp.entity.RoomBooking">
+        <id column="id" property="id"/>
+        <result column="booking_no" property="bookingNo"/>
+        <result column="room_id" property="roomId"/>
+        <result column="user_id" property="userId"/>
+        <result column="start_date" property="startDate"/>
+        <result column="lease_months" property="leaseMonths"/>
+        <result column="rent_cent" property="rentCent"/>
+        <result column="deposit_cent" property="depositCent"/>
+        <result column="status" property="status"/>
+        <result column="hold_until" property="holdUntil"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- SQL 片段 -->
+    <sql id="RoomBookingColumns">
+        id, booking_no, room_id, user_id,
+        start_date, lease_months, rent_cent, deposit_cent,
+        status, hold_until, created_at, updated_at
+    </sql>
+
+    <!-- 根据 ID 查询 -->
+    <select id="selectById" resultMap="RoomBookingResultMap">
+        SELECT <include refid="RoomBookingColumns"/>
+        FROM room_bookings
+        WHERE id = #{id}
+    </select>
+
+    <!-- 根据预订编号查询 -->
+    <select id="selectByBookingNo" resultMap="RoomBookingResultMap">
+        SELECT <include refid="RoomBookingColumns"/>
+        FROM room_bookings
+        WHERE booking_no = #{bookingNo}
+    </select>
+
+    <!-- 根据房间 ID 查询 -->
+    <select id="selectByRoomId" resultMap="RoomBookingResultMap">
+        SELECT <include refid="RoomBookingColumns"/>
+        FROM room_bookings
+        WHERE room_id = #{roomId}
+    </select>
+
+    <!-- 根据用户 ID 查询 -->
+    <select id="selectByUserId" resultMap="RoomBookingResultMap">
+        SELECT <include refid="RoomBookingColumns"/>
+        FROM room_bookings
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 插入预订 -->
+    <insert id="insert" parameterType="com.yasp.entity.RoomBooking" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO room_bookings (
+            booking_no, room_id, user_id,
+            start_date, lease_months, rent_cent, deposit_cent,
+            status, hold_until
+        ) VALUES (
+                     #{bookingNo}, #{roomId}, #{userId},
+                     #{startDate}, #{leaseMonths}, #{rentCent}, #{depositCent},
+                     #{status}, #{holdUntil}
+                 )
+    </insert>
+
+    <!-- 根据 ID 更新 -->
+    <update id="updateById" parameterType="com.yasp.entity.RoomBooking">
+        UPDATE room_bookings
+        <set>
+            <if test="bookingNo != null">booking_no = #{bookingNo},</if>
+            <if test="roomId != null">room_id = #{roomId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="leaseMonths != null">lease_months = #{leaseMonths},</if>
+            <if test="rentCent != null">rent_cent = #{rentCent},</if>
+            <if test="depositCent != null">deposit_cent = #{depositCent},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="holdUntil != null">hold_until = #{holdUntil},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据 ID 删除 -->
+    <delete id="deleteById">
+        DELETE FROM room_bookings WHERE id = #{id}
+    </delete>
+
+    <!-- 查询超时未支付的预订记录 -->
+    <select id="findTimeoutBookings" resultMap="RoomBookingResultMap">
+        SELECT *
+        FROM room_bookings
+        WHERE status = 0 -- 待支付
+        AND hold_until &lt;= #{currentTime}
+    </select>
+
+    <!-- 更新预订状态 -->
+    <update id="updateBookingStatus">
+        UPDATE room_bookings
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE id = #{bookingId};
+    </update>
+
+</mapper>

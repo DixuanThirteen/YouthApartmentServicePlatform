@@ -110,6 +110,7 @@ public class ProviderService {
         }
 
         response.setUsername(request.getUsername());
+        response.setId(providerAccount.getId());
         response.setCode(200);
         response.setMessage("登录成功");
         response.setProvider(providerMapper.selectProviderById(providerAccount.getProviderId()).getName());

@@ -1,6 +1,8 @@
 package com.yasp.service;
 
+import com.yasp.dto.LoginRequest;
 import com.yasp.dto.LoginResponse;
+import com.yasp.dto.Response;
 import com.yasp.entity.Admin;
 import com.yasp.mapper.AdminMapper;
 import com.yasp.security.JwtUtil;
@@ -49,6 +51,27 @@ public class AdminService {
         Response.setMessage("登录成功");
 
         return Response;
+    }
+
+    public Response<Admin> addAdmin(LoginRequest Request){
+        Response<Admin> resp = new Response<>(null);
+
+        if(adminMapper.selectByUsername(Request.getUsername()) != null){
+            resp.setCode(400);
+            return resp;
+        }
+
+        String encode = passwordEncoder.encode(Request.getPassword());
+
+        adminMapper.insertAdmin(Request.getUsername(), encode);
+
+        Admin admin = adminMapper.selectByUsername(Request.getUsername());
+
+        resp.setCode(200);
+        resp.setMessage("success");
+        resp.setData(admin);
+
+        return resp;
     }
 
 }
