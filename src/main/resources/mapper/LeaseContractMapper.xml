@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yasp.mapper.LeaseContractMapper">
+
+    <!-- ResultMap 对应 LeaseContract 实体类 -->
+    <resultMap id="LeaseContractResultMap" type="com.yasp.entity.LeaseContract">
+        <id column="id" property="id"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="booking_id" property="bookingId"/>
+        <result column="room_id" property="roomId"/>
+        <result column="user_id" property="userId"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="rent_cent" property="rentCent"/>
+        <result column="deposit_cent" property="depositCent"/>
+        <result column="pay_cycle" property="payCycle"/>
+        <result column="status" property="status"/>
+        <result column="signed_at" property="signedAt"/>
+        <result column="terminated_at" property="terminatedAt"/>
+        <result column="terminate_reason" property="terminateReason"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 插入新租赁合同 -->
+    <insert id="insertLeaseContract" parameterType="com.yasp.entity.LeaseContract" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO lease_contracts (
+            contract_no, booking_id, room_id, user_id,
+            start_date, end_date, rent_cent, deposit_cent, pay_cycle,
+            status, signed_at
+        )
+        VALUES (
+            #{contractNo}, #{bookingId}, #{roomId}, #{userId},
+            #{startDate}, #{endDate}, #{rentCent}, #{depositCent}, #{payCycle},
+            #{status}, #{signedAt}
+        );
+    </insert>
+
+    <!-- 更新租赁合同状态 -->
+    <update id="updateLeaseContractStatus">
+        UPDATE lease_contracts
+        SET status = #{status},
+            terminated_at = #{terminatedAt},
+            terminate_reason = #{terminateReason},
+            updated_at = NOW()
+        WHERE id = #{contractId};
+    </update>
+
+    <!-- 根据合同编号查询 -->
+    <select id="selectByContractNo" resultMap="LeaseContractResultMap">
+        SELECT *
+        FROM lease_contracts
+        WHERE contract_no = #{contractNo};
+    </select>
+
+    <!-- 根据房间ID查询相关合同 -->
+    <select id="selectContractsByRoomId" resultMap="LeaseContractResultMap">
+        SELECT *
+        FROM lease_contracts
+        WHERE room_id = #{roomId}
+        ORDER BY start_date DESC;
+    </select>
+
+    <!-- 查询用户的所有租赁合同 -->
+    <select id="selectContractsByUserId" resultMap="LeaseContractResultMap">
+        SELECT *
+        FROM lease_contracts
+        WHERE user_id = #{userId}
+        ORDER BY start_date DESC;
+    </select>
+
+    <!-- 查询所有合同（可选条件：状态） -->
+    <select id="selectAllContracts" resultMap="LeaseContractResultMap">
+        SELECT *
+        FROM lease_contracts
+        <if test="status != null">
+            WHERE status = #{status}
+        </if>
+        ORDER BY created_at DESC;
+    </select>
+
+</mapper>

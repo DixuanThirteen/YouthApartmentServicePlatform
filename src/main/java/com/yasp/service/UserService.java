@@ -109,6 +109,7 @@ public class UserService {
         Response.setId(user.getId());
         Response.setUsername(user.getUsername());
         Response.setToken(token);
+        Response.setAvatar(user.getAvatar());
         Response.setMessage("登录成功");
 
         return Response;
@@ -138,12 +139,12 @@ public class UserService {
             return resp;
         }
 
-        String oldAvatar = oldUser.getAvatar();
-        String newAvatar = user.getAvatar();
+//        String oldAvatar = oldUser.getAvatar();
+//        String newAvatar = user.getAvatar();
 
-        if(newAvatar != null && !newAvatar.isEmpty() && !Objects.equals(oldAvatar, "/images/DefaultAvatar.png")){
-            deleteOldAvatarFile(oldAvatar);
-        }
+//        if(newAvatar != null && !newAvatar.isEmpty() && !Objects.equals(oldAvatar, "/images/DefaultAvatar.png")){
+//            deleteOldAvatarFile(oldAvatar);
+//        }
 
         User userOperator = userMapper.selectByUsername(username);
 

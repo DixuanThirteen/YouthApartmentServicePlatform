@@ -387,7 +387,11 @@ const handleAddRoomType = (row) => {
   rtForm.bedCount = 1
   rtForm.capacity = 1
   rtForm.rentPrice = ''
-  rtForm.depositPrice = ''
+
+  // 【关键修改点】自动填充押金：读取公寓的 depositCent，转为元
+  // 如果后端返回了 depositCent，就 /100；否则置空
+  rtForm.depositPrice = row.depositCent ? row.depositCent / 100 : ''
+
   rtForm.hasWindow = true
   rtForm.hasBalcony = false
   rtForm.orientation = 2

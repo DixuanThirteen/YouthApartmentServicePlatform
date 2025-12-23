@@ -1,58 +1,56 @@
-CREATE TABLE rooms (
-  id               BIGINT PRIMARY KEY AUTO_INCREMENT,
+/*
+ Navicat Premium Dump SQL
 
-  apartment_id     BIGINT NOT NULL,                 -- apartments.id
-  room_type_id     BIGINT NOT NULL,                 -- room_types.id（别墅也可以定义成“整栋/整套”户型）
+ Source Server         : localhost_3306
+ Source Server Type    : MySQL
+ Source Server Version : 90400 (9.4.0)
+ Source Host           : localhost:3306
+ Source Schema         : yasp
 
-  -- 位置标识：允许为空以适配不同形态（别墅/分散式/公寓楼）
-  building_no      VARCHAR(50) NULL,                -- 楼栋号/栋（如“8栋”）
-  unit_no          VARCHAR(50) NULL,                -- 单元（可选）
-  floor_no         INT NULL,                        -- 楼层（可选）
-  room_no          VARCHAR(100) NULL,               -- 房号/门牌（可选：别墅可能没有）
-  display_name     VARCHAR(200) NULL,               -- 展示名（如“翠湖别墅8栋”/“A座1203”）
+ Target Server Type    : MySQL
+ Target Server Version : 90400 (9.4.0)
+ File Encoding         : 65001
 
-  -- 为唯一性做归一化（MySQL UNIQUE 对 NULL 不严格）
-  building_no_norm VARCHAR(50)
-    GENERATED ALWAYS AS (IFNULL(building_no, '')) STORED,
-  unit_no_norm     VARCHAR(50)
-    GENERATED ALWAYS AS (IFNULL(unit_no, '')) STORED,
-  room_no_norm     VARCHAR(100)
-    GENERATED ALWAYS AS (IFNULL(room_no, '')) STORED,
+ Date: 23/12/2025 15:46:55
+*/
 
-  -- 可选覆盖字段
-  area_sqm         DECIMAL(8,2),
-  orientation      TINYINT,
-  rent_cent        INT UNSIGNED,                    -- 分；为空则走 room_types.rent_cent
-  deposit_cent     INT UNSIGNED,                    -- 分；为空则走 room_types.deposit_cent
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
 
-  status           TINYINT NOT NULL DEFAULT 1,
-  rent_status      TINYINT NOT NULL DEFAULT 0,       -- 0空置 1待确认 2预订 3出租 4下架(自定义)
+-- ----------------------------
+-- Table structure for rooms
+-- ----------------------------
+DROP TABLE IF EXISTS `rooms`;
+CREATE TABLE `rooms`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `apartment_id` bigint NOT NULL,
+  `room_type_id` bigint NOT NULL,
+  `building_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `unit_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `floor_no` int NULL DEFAULT NULL,
+  `room_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `display_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `building_no_norm` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci GENERATED ALWAYS AS (ifnull(`building_no`,_utf8mb4'')) STORED NULL,
+  `unit_no_norm` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci GENERATED ALWAYS AS (ifnull(`unit_no`,_utf8mb4'')) STORED NULL,
+  `room_no_norm` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci GENERATED ALWAYS AS (ifnull(`room_no`,_utf8mb4'')) STORED NULL,
+  `area_sqm` decimal(8, 2) NULL DEFAULT NULL,
+  `orientation` tinyint NULL DEFAULT NULL,
+  `rent_cent` int UNSIGNED NOT NULL,
+  `deposit_cent` int UNSIGNED NOT NULL,
+  `status` tinyint NOT NULL DEFAULT 1,
+  `rent_status` tinyint NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `room_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_room_location`(`apartment_id` ASC, `building_no_norm` ASC, `unit_no_norm` ASC, `room_no_norm` ASC) USING BTREE,
+  UNIQUE INDEX `uk_room_code`(`room_code` ASC) USING BTREE,
+  INDEX `idx_apartment_id`(`apartment_id` ASC) USING BTREE,
+  INDEX `idx_room_type_id`(`room_type_id` ASC) USING BTREE,
+  INDEX `idx_rent_status`(`rent_status` ASC) USING BTREE,
+  CONSTRAINT `fk_rooms_apartment` FOREIGN KEY (`apartment_id`) REFERENCES `apartments` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_rooms_room_type` FOREIGN KEY (`room_type_id`) REFERENCES `room_types` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `ck_rooms_has_identifier` CHECK (((`building_no` is not null) and (`building_no` <> _utf8mb4'')) or ((`room_no` is not null) and (`room_no` <> _utf8mb4'')) or ((`display_name` is not null) and (`display_name` <> _utf8mb4'')))
+) ENGINE = InnoDB AUTO_INCREMENT = 52 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '房间/房源表(兼容分散式/别墅/公寓楼)' ROW_FORMAT = Dynamic;
 
-  created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-  -- 同一公寓下，“位置组合”必须唯一：支持仅楼栋的情况（room_no_norm='' 也会参与唯一）
-  UNIQUE KEY uk_room_location (apartment_id, building_no_norm, unit_no_norm, room_no_norm),
-
-  KEY idx_apartment_id (apartment_id),
-  KEY idx_room_type_id (room_type_id),
-  KEY idx_rent_status (rent_status),
-
-  CONSTRAINT fk_rooms_apartment
-    FOREIGN KEY (apartment_id) REFERENCES apartments(id),
-
-  CONSTRAINT fk_rooms_room_type
-    FOREIGN KEY (room_type_id) REFERENCES room_types(id),
-
-  -- 至少要有一个位置标识（楼栋/房号/展示名三者至少填一个）
-  CONSTRAINT ck_rooms_has_identifier
-    CHECK (
-      (building_no IS NOT NULL AND building_no <> '')
-      OR (room_no IS NOT NULL AND room_no <> '')
-      OR (display_name IS NOT NULL AND display_name <> '')
-    )
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='房间/房源表(兼容分散式/别墅/公寓楼)';
-
-ALTER TABLE rooms
-  ADD COLUMN room_code VARCHAR(64) NULL,
-  ADD UNIQUE KEY uk_room_code (room_code);
+SET FOREIGN_KEY_CHECKS = 1;

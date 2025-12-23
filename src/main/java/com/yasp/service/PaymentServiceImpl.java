@@ -8,6 +8,8 @@ import com.yasp.entity.RoomBooking;
 import com.yasp.mapper.PaymentsMapper;
 import com.yasp.mapper.RoomAvailabilityMapper;
 import com.yasp.mapper.RoomBookingMapper;
+import com.yasp.mapper.RoomMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
@@ -25,6 +28,8 @@ public class PaymentServiceImpl implements PaymentService {
     private RoomBookingMapper roomBookingMapper;
     @Autowired
     private RoomAvailabilityMapper roomAvailabilityMapper;
+    @Autowired
+    private RoomMapper roomMapper;
 
     // 生成支付请求
     @Override
@@ -97,16 +102,28 @@ public class PaymentServiceImpl implements PaymentService {
             // 更新订单状态为确认支付
             roomBookingMapper.updateBookingStatus(callback.getBookingId(), (byte) 1); // CONFIRMED
 
+            roomMapper.updateRentStatus(booking.getRoomId(), (byte) 2);
+
             response.setCode(200);
             response.setMessage("支付成功");
         } else {
-            // 更新支付状态为失败
-            paymentsMapper.updatePaymentStatus(callback.getPaymentId(), "CANCEL");
 
-            // 更新订单状态为取消
-            roomBookingMapper.updateBookingStatus(callback.getBookingId(), (byte) 2); // CONFIRMED
 
-            roomAvailabilityMapper.deleteBySource("booking", callback.getBookingId());
+            try{ // 更新支付状态为失败
+                paymentsMapper.updatePaymentStatus(callback.getPaymentId(), "CANCEL");
+
+                // 更新订单状态为取消
+                roomBookingMapper.updateBookingStatus(callback.getBookingId(), (byte) 2); // CONFIRMED
+
+                roomAvailabilityMapper.deleteBySource("booking", callback.getBookingId());
+
+                roomMapper.updateRentStatus(booking.getRoomId(), (byte) 0);
+                log.info("abc");
+            }catch (Exception e){
+                response.setCode(500);
+                response.setMessage(e.getMessage());
+                return response;
+            }
 
             response.setCode(400);
             response.setMessage("支付失败");

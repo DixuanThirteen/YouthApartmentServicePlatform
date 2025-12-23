@@ -90,17 +90,14 @@ const roleName = computed(() => {
 })
 
 // 根据角色获取对应的后端 API URL
-// 对应你的 Controller RequestMapping
 const getLoginUrl = () => {
   switch (activeRole.value) {
-    case 'provider': return '/api/providers/login' // 对应 ProviderController
-    case 'admin': return '/api/admins/login'       // 对应 AdminController
+    case 'provider': return '/api/providers/login'
+    case 'admin': return '/api/admins/login'
     case 'user':
-    default: return '/api/users/login'             // 对应 UserController
+    default: return '/api/users/login'
   }
 }
-
-// src/views/LoginView.vue 中的 handleLogin 方法
 
 const handleLogin = async () => {
   if (!loginFormRef.value) return
@@ -125,12 +122,15 @@ const handleLogin = async () => {
           // 1. 存储 Token
           localStorage.setItem('token', resData.token)
 
-          // 2. 【关键】存储后端返回的用户 ID
-          // 假设后端 LoginResponse 里的字段叫 id
+          // 2. 存储后端返回的用户 ID
           localStorage.setItem('userId', resData.id)
 
-          // 3. 存储其他信息
+          // 3. 存储用户名
           localStorage.setItem('username', resData.username)
+
+          // 4. 【新增】存储用户头像 URL
+          // 确保 UserLayout.vue 能读取到这个字段
+          localStorage.setItem('userAvatar', resData.avatar)
 
           const role = resData.role
           localStorage.setItem('role', role)
@@ -139,6 +139,7 @@ const handleLogin = async () => {
             localStorage.setItem('providerName', resData.provider)
           }
 
+          // 根据角色跳转
           if(resData.role && resData.role.includes('PROVIDER')){
             router.push('/provider/dashboard')
           }else{
@@ -161,7 +162,6 @@ const handleLogin = async () => {
 }
 
 const goToRegister = () => {
-  // 跳转到注册页面的逻辑，后续实现
   router.push('/register')
 }
 </script>

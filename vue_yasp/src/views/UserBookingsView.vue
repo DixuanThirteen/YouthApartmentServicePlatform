@@ -35,24 +35,42 @@
               </el-descriptions-item>
             </el-descriptions>
 
-            <div class="booking-footer" v-if="item.status === 0">
-              <el-button
-                type="primary"
-                size="small"
-                plain
-                @click="handlePay(item)"
-              >
-                去支付
-              </el-button>
+            <div class="booking-footer">
 
-              <el-button
-                type="danger"
-                size="small"
-                text
-                @click="handleCancel(item)"
-              >
-                取消订单
-              </el-button>
+              <template v-if="item.status === 0">
+                <el-button
+                  type="primary"
+                  size="small"
+                  plain
+                  @click="handlePay(item)"
+                >
+                  去支付
+                </el-button>
+
+                <el-button
+                  type="danger"
+                  size="small"
+                  text
+                  @click="handleCancel(item)"
+                >
+                  取消订单
+                </el-button>
+              </template>
+
+              <template v-if="item.status === 1">
+                <el-button
+                  type="success"
+                  size="small"
+                  @click="handleCheckIn(item)"
+                >
+                  办理入住
+                </el-button>
+              </template>
+
+              <template v-if="item.status === 3">
+                 <span style="color: #409eff; font-size: 12px;">当前正在履约中</span>
+              </template>
+
             </div>
           </el-card>
         </div>
@@ -64,7 +82,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { ElMessage, ElMessageBox } from 'element-plus' // 引入 ElMessageBox
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -80,10 +98,9 @@ const fetchBookings = async () => {
     const userId = localStorage.getItem('userId')
     if (!userId) return
 
-    // 假设你的后端前缀是 /api，根据你下面的 handlePay 逻辑推断
     const res = await axios.get(`/api/room-booking/user/${userId}`)
     if (res.data.code === 200) {
-      bookings.value = res.data.data || []
+      bookings.value = (res.data.data || []).reverse()
     }
   } catch (e) {
     console.error('加载列表失败', e)
@@ -91,8 +108,41 @@ const fetchBookings = async () => {
   }
 }
 
-// --- 新增：取消订单逻辑 ---
-// --- 最终版：取消后自动刷新 ---
+// --- 办理入住逻辑 ---
+const handleCheckIn = (item) => {
+  ElMessageBox.confirm(
+    '确认现在办理入住并生成租房合同吗？',
+    '提示',
+    {
+      confirmButtonText: '确定办理',
+      cancelButtonText: '取消',
+      type: 'success',
+    }
+  ).then(async () => {
+    try {
+      const res = await axios.post(`/api/lease-contract/${item.id}`)
+
+      if (res.data.code === 200) {
+        ElMessage.success('入住办理成功，合同已生成！')
+        fetchBookings() // 刷新后，状态变为3，按钮会自动消失
+      }
+    } catch (e) {
+      if (e.response && e.response.data) {
+        const errorData = e.response.data
+        if (errorData.message) {
+          ElMessage.warning(errorData.message)
+        } else {
+          ElMessage.error('办理失败，未知原因')
+        }
+      } else {
+        console.error(e)
+        ElMessage.error('网络请求失败')
+      }
+    }
+  }).catch(() => {})
+}
+
+// --- 取消订单逻辑 ---
 const handleCancel = (item) => {
   ElMessageBox.confirm(
     '确定要取消该预定订单吗？取消后无法恢复。',
@@ -108,10 +158,7 @@ const handleCancel = (item) => {
 
       if (res.data.code === 200) {
         ElMessage.success('订单取消成功')
-
-        // 【关键修改】直接重新加载列表，确保数据绝对同步
         fetchBookings()
-
       } else {
         ElMessage.error(res.data.message || '取消失败')
       }
@@ -119,62 +166,38 @@ const handleCancel = (item) => {
       console.error(e)
       ElMessage.error('网络请求失败')
     }
-  }).catch(() => {
-    // 用户点击取消，不做操作
-  })
+  }).catch(() => {})
 }
 
-// 核心支付逻辑
+// --- 支付逻辑 ---
 const handlePay = async (item) => {
-  console.log('1. 进入 handlePay 函数', item)
-
-  if (loading.value) {
-    console.warn('2. 请求正在进行中，被防抖拦截')
-    return
-  }
-
+  if (loading.value) return
   loading.value = true
   try {
-    console.log('3. 发起 API 请求...')
-    // 1. 调用准备支付接口
     const payRes = await axios.post('/api/payment/prepare', {
       bookingId: item.id,
       paymentMethod: 'alipay'
     })
-
-    console.log('4. 收到后端响应:', payRes)
-
-    // 2. 检查响应结构
     const resBody = payRes.data
 
     if (resBody && resBody.code === 200 && resBody.data) {
-      const payData = resBody.data
-      console.log('5. Data 数据:', payData)
-
-      const targetId = payData.paymentId
-      const amount = payData.totalAmount
-
-      if (!targetId) {
-        console.error('6. 错误: paymentId 不存在!', payData)
+      const { paymentId, totalAmount } = resBody.data
+      if (!paymentId) {
         ElMessage.error('支付单号缺失')
         return
       }
-
-      console.log('7. 准备跳转, paymentId:', targetId)
-
       router.push({
         path: '/payment',
         query: {
-          paymentId: targetId,
-          amount: amount ? amount / 100 : 0
+          paymentId,
+          amount: totalAmount ? totalAmount / 100 : 0
         }
       })
     } else {
-      console.error('后端返回错误:', resBody)
       ElMessage.error(resBody?.message || '创建支付订单失败')
     }
   } catch (e) {
-    console.error('8. 捕获到异常:', e)
+    console.error(e)
     if (e.response && e.response.status === 401) return
     ElMessage.error('网络请求失败')
   } finally {
@@ -182,15 +205,27 @@ const handlePay = async (item) => {
   }
 }
 
-// 辅助函数
+// --- 状态映射修改 ---
 const getStatusText = (status) => {
-  const map = { 0: '待确认', 1: '已生效', 2: '已取消', 3: '已过期' }
-  return map[status] || '未知'
+  const map = {
+    0: '待确认',
+    1: '已生效', // (已支付，待入住)
+    2: '已取消',
+    3: '已入住'  // 【修改点】 status 3 = 已入住
+  }
+  return map[status] || '未知状态'
 }
+
 const getStatusType = (status) => {
-  const map = { 0: 'warning', 1: 'success', 2: 'info', 3: 'danger' }
+  const map = {
+    0: 'warning',
+    1: 'success',
+    2: 'info',
+    3: 'primary' // 【修改点】 status 3 用深蓝色或主色调
+  }
   return map[status] || 'info'
 }
+
 const formatDate = (str) => str ? str.split('T')[0] : ''
 const formatDateTime = (str) => str ? str.replace('T', ' ').substring(0, 16) : ''
 </script>
@@ -224,5 +259,6 @@ const formatDateTime = (str) => str ? str.replace('T', ' ').substring(0, 16) : '
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  min-height: 32px;
 }
 </style>

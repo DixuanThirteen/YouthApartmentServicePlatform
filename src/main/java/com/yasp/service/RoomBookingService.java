@@ -4,6 +4,7 @@ import com.yasp.dto.BookRequest;
 import com.yasp.dto.Response;
 import com.yasp.entity.*;
 import com.yasp.mapper.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class RoomBookingService {
 
@@ -156,7 +158,8 @@ public class RoomBookingService {
         }
         if (availableRoom == null) {
             resp.setCode(400);
-            resp.setMessage("此房型下没有可用的房间");
+            resp.setMessage("此房型下没有可用的房间"+request.toString());
+            log.info("1{}", request.toString());
             return resp;
         }
 
@@ -288,7 +291,7 @@ public class RoomBookingService {
         return resp;
     }
 
-    @Scheduled(fixedRate = 300000) // 5分钟检查一次
+    @Scheduled(fixedRate = 30000) // 5分钟检查一次
     public void cancelTimeoutBookings() {
         // 获取15分钟未支付的订单
         List<RoomBooking> timeoutBookings = roomBookingMapper.findTimeoutBookings(LocalDateTime.now());

@@ -555,7 +555,22 @@ const getOrientationText = (val) => {
 // === Previous Logic ===
 const handleEditApartment = () => { editAptDialog.form = { ...apartment.value }; editAptDialog.visible = true }
 const submitAptEdit = async () => { loadingSubmit.value=true; try { const payload = { ...editAptDialog.form }; await axios.put(`/api/apartments/${payload.id}`, payload, { headers: getHeaders() }); ElMessage.success('修改成功'); editAptDialog.visible = false; loadData(); } catch (e) { ElMessage.error('请求出错', e) } finally { loadingSubmit.value = false } }
-const openRoomTypeDialog = (mode, data) => { rtDialog.mode = mode; rtDialog.visible = true; if(mode==='create'){ rtDialog.form={name:'',rentPrice:'',depositPrice:'',areaSqm:'',bedroomCount:1,livingCount:0,bathroomCount:1,kitchenCount:0,hasWindow:true,hasBalcony:false,orientation:2,description:''} }else{ rtDialog.form={...data, rentPrice:data.rentCent/100, depositPrice:data.depositCent/100, hasWindow:data.hasWindow===1, hasBalcony:data.hasBalcony===1} } }
+const openRoomTypeDialog = (mode, data) => {
+  rtDialog.mode = mode;
+  rtDialog.visible = true;
+  if(mode==='create'){
+    rtDialog.form={
+      name:'',
+      rentPrice:'',
+      // 【关键修改点】在创建时自动填入公寓的 depositCent / 100
+      depositPrice: apartment.value.depositCent ? apartment.value.depositCent / 100 : '',
+      areaSqm:'',
+      bedroomCount:1,livingCount:0,bathroomCount:1,kitchenCount:0,hasWindow:true,hasBalcony:false,orientation:2,description:''
+    }
+  }else{
+    rtDialog.form={...data, rentPrice:data.rentCent/100, depositPrice:data.depositCent/100, hasWindow:data.hasWindow===1, hasBalcony:data.hasBalcony===1}
+  }
+}
 const submitRoomType = async () => { loadingSubmit.value=true; try { const form=rtDialog.form; const payload={...form, apartmentId:Number(apartmentId), rentCent:Number(form.rentPrice)*100, depositCent:Number(form.depositPrice)*100, hasWindow:form.hasWindow?1:0, hasBalcony:form.hasBalcony?1:0}; let res; if(rtDialog.mode==='create') res = await axios.post('/api/room-types', payload, {headers:getHeaders()}); else res = await axios.put(`/api/room-types/${form.id}`, payload, {headers:getHeaders()}); if(res.data.code===200){ElMessage.success('操作成功'); rtDialog.visible=false; loadData();}else{ElMessage.error(res.data.message)} } catch(e){ElMessage.error('失败', e)} finally{loadingSubmit.value=false} }
 </script>
 

@@ -26,7 +26,7 @@
           class="mb-20"
         />
         <el-alert
-          v-else-if="orderInfo.status === 'CANCELLED'"
+          v-else-if="orderInfo.status === 'CANCEL'"
           title="订单已取消"
           type="info"
           show-icon
@@ -64,7 +64,7 @@
             <el-button type="primary" size="large" class="pay-btn" :loading="paying" @click="handleCallback('SUCCESS')">
               确认支付 ¥{{ (orderInfo.amountCent / 100).toFixed(2) }}
             </el-button>
-            <el-button size="large" class="cancel-btn" :loading="paying" @click="handleCallback('CANCELLED')">
+            <el-button size="large" class="cancel-btn" :loading="paying" @click="handleCallback('CANCEL')">
               取消支付
             </el-button>
           </template>
@@ -132,7 +132,7 @@ const fetchPaymentDetails = async (paymentId) => {
 const handleCallback = async (targetStatus) => {
   if (!orderInfo.value) return
 
-  if (targetStatus === 'CANCELLED') {
+  if (targetStatus === 'CANCEL') {
     try {
       await ElMessageBox.confirm('确定要放弃本次支付吗？', '提示', {
         confirmButtonText: '放弃支付',
@@ -168,7 +168,7 @@ const handleCallback = async (targetStatus) => {
         // 如果后端对于 SUCCESS 返回 200，但对于 CANCELLED 可能也返回 200（这取决于你后端怎么写的）
         // 这里是处理 200 的情况
         ElMessage.info('支付已取消')
-        orderInfo.value.status = 'CANCELLED'
+        orderInfo.value.status = 'CANCEL'
         router.replace('/my-bookings')
       }
     } else {
@@ -180,9 +180,9 @@ const handleCallback = async (targetStatus) => {
     if (e.response && e.response.status === 400) {
        const resData = e.response.data
        // 如果错误信息是 "支付失败"，我们认为这是取消操作的正常反馈
-       if (resData && (resData.message === '支付失败' || targetStatus === 'CANCELLED')) {
+       if (resData && (resData.message === '支付失败' || targetStatus === 'CANCEL')) {
           ElMessage.info('支付已取消')
-          orderInfo.value.status = 'CANCELLED'
+          orderInfo.value.status = 'CANCEL'
           // 延迟一点跳转，让用户看清提示
           setTimeout(() => {
              router.replace('/my-bookings')
@@ -203,7 +203,7 @@ const formatTime = (timeStr) => timeStr ? timeStr.replace('T', ' ') : '-'
 const getStatusType = (status) => {
   if (status === 'SUCCESS') return 'success'
   if (status === 'PENDING') return 'warning'
-  if (status === 'CANCELLED') return 'info'
+  if (status === 'CANCEL') return 'info'
   return 'primary'
 }
 </script>

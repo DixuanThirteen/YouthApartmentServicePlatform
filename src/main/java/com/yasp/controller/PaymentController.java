@@ -22,7 +22,6 @@ public class PaymentController {
 
     @PostMapping("/prepare")//创建支付订单
     public ResponseEntity<Response<Object>> preparePayment(@RequestBody PaymentRequest request) {
-        log.info(request.toString());
         Response<Object> response = paymentService.preparePayment(request);
         return ResponseEntity.status(response.getCode()).body(response);
     }

@@ -10,14 +10,16 @@
 
           <div class="nav-menu">
             <router-link to="/home" class="nav-item" exact-active-class="active">首页</router-link>
-
             <router-link to="/my-bookings" class="nav-item" active-class="active">我的预定</router-link>
           </div>
 
           <div class="user-area">
             <el-dropdown @command="handleCommand" v-if="username">
               <span class="el-dropdown-link">
-                <el-avatar :size="32" src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+                <el-avatar
+                  :size="32"
+                  :src="userAvatar || 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'"
+                />
                 <span class="username">{{ username }}</span>
                 <el-icon class="el-icon--right"><ArrowDown /></el-icon>
               </span>
@@ -54,9 +56,13 @@ import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const username = ref('')
+const userAvatar = ref('') // 新增：用于存储头像地址
 
 onMounted(() => {
   username.value = localStorage.getItem('username')
+  // 新增：从 localStorage 获取头像
+  // 注意：如果你的图片在 public 文件夹下，直接读取路径即可
+  userAvatar.value = localStorage.getItem('userAvatar')
 })
 
 const handleCommand = (cmd) => {
