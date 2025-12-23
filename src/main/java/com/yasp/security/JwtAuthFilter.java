@@ -89,17 +89,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             chain.doFilter(req, resp);
             //从这开始注释
-//        } catch (Exception e) {
-//            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//            resp.getWriter().write("Invalid or expired token");
-//        }
-            //以下测试用，先注释上面----^
         } catch (Exception e) {
-            e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            resp.getWriter().write(
-                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
-            );
+            resp.getWriter().write("Invalid or expired token");
         }
+            //以下测试用，先注释上面----^
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            resp.getWriter().write(
+//                    "Invalid or expired token: " + e.getClass().getName() + " - " + e.getMessage()
+//            );
+//        }
     }
 }
